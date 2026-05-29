@@ -1,4 +1,7 @@
 main:
+  - name: Start
+    url: /start/
+    highlight: true
   - name: Why Go
     url: /solutions/
     children:
@@ -84,8 +87,10 @@ footer:
         url: /solutions/case-studies
 
   - name: Get Started
-    url: /learn/
+    url: /start/
     children:
+      - name: New to Go
+        url: /start/
       - name: Playground
         url: /play
       - name: Tour

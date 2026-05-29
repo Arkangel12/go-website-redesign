@@ -1,20 +1,71 @@
 - title: Getting started
-  content: In this tutorial, you'll get a brief introduction to Go programming. Along the way, you will install Go, write some simple "Hello, world" code, use the go command to run your code, use the Go package discovery tool, and call functions of an external module.
+  content: Install Go, write your first "Hello, world" program, and call functions of an external module.
   url: /doc/tutorial/getting-started
-  thumbnail:
   cta: Tutorial
+  level: beginner
+  duration_minutes: 15
+  tags: [basics, install, modules]
+
 - title: Create a module
-  content: This is the first part of a tutorial that introduces a few fundamental features of the Go language. In this tutorial you'll create two modules. The first is a library which is intended to be imported by other libraries or applications. The second is a caller application which will use the first.
+  content: Build a library module and a caller application — the foundation of every Go project.
   url: /doc/tutorial/create-module
-  thumbnail:
   cta: Tutorial
+  level: beginner
+  duration_minutes: 20
+  tags: [basics, modules]
+
+- title: Getting started with generics
+  content: Add type parameters to a function so it can handle values of any type.
+  url: /doc/tutorial/generics
+  cta: Tutorial
+  level: intermediate
+  duration_minutes: 20
+  tags: [generics]
+
+- title: Getting started with fuzzing
+  content: Use Go's built-in fuzzing support to find bugs in your code automatically.
+  url: /doc/tutorial/fuzz-testing
+  cta: Tutorial
+  level: intermediate
+  duration_minutes: 20
+  tags: [testing, fuzzing]
+
 - title: Developing a web service
-  content: This tutorial introduces the basics of writing a RESTful web service API with Go and the Gin Web Framework. In this tutorial, you will build a RESTful API server with two endpoints.
-  url: https://shell.cloud.google.com/?walkthrough_tutorial_url=https%3A%2F%2Fraw.githubusercontent.com%2Fgolang%2Ftour%2Fmaster%2Ftutorial%2Fweb-service-gin.md&pli=1&show=ide&environment_deployment=ide
-  thumbnail:
-  cta: Interactive Tutorial
-- title: Accessing a relational database
-  content: This tutorial introduces the basics of accessing a relational database with Go and the database/sql package in its standard library. In this tutorial, you’ll create a database, then write code to access the database.
-  url: /doc/tutorial/database-access
-  thumbnail:
+  content: Build a RESTful API server with two endpoints using Go and the Gin Web Framework.
+  url: /doc/tutorial/web-service-gin
   cta: Tutorial
+  level: intermediate
+  duration_minutes: 45
+  tags: [web, api, gin]
+
+- title: Accessing a relational database
+  content: Create a database and write code to access it using Go's database/sql package.
+  url: /doc/tutorial/database-access
+  cta: Tutorial
+  level: intermediate
+  duration_minutes: 40
+  tags: [database, sql]
+
+- title: Developing a Go program (Google Cloud Shell)
+  content: Walk through an interactive tutorial to build and run a Go program in the cloud.
+  url: https://shell.cloud.google.com/?walkthrough_tutorial_url=https%3A%2F%2Fraw.githubusercontent.com%2Fgolang%2Ftour%2Fmaster%2Ftutorial%2Fweb-service-gin.md&pli=1&show=ide&environment_deployment=ide
+  cta: Interactive Tutorial
+  level: beginner
+  duration_minutes: 30
+  tags: [basics, cloud]
+
+- title: A Guide to the Go Garbage Collector
+  content: Understand the design and operation of Go's garbage collector so you can write more efficient programs.
+  url: /doc/gc-guide
+  cta: Guide
+  level: advanced
+  duration_minutes: 40
+  tags: [performance, internals, gc]
+
+- title: Profiling Go Programs
+  content: Learn how to use pprof to find and fix performance problems in Go programs.
+  url: /blog/pprof
+  cta: Article
+  level: advanced
+  duration_minutes: 30
+  tags: [performance, profiling]

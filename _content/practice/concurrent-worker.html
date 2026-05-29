@@ -1,0 +1,134 @@
+<!--{
+  "Title": "Concurrent Worker Pool — Go in Practice"
+}-->
+
+<div class="Practice-example">
+
+<div class="Practice-exampleNav">
+  <a href="/practice/">← Go in Practice</a>
+</div>
+
+<div class="Practice-exampleHeader">
+  <span class="Practice-cardLevel Practice-cardLevel--advanced">Advanced</span>
+  <h1>Concurrent Worker Pool</h1>
+  <p class="Practice-exampleSubtitle">Process a stream of jobs in parallel with goroutines, channels, and context-based cancellation.</p>
+</div>
+
+<h2>What you'll build</h2>
+<p>A worker pool that:</p>
+<ul>
+  <li>Spins up N workers that each pull from a shared jobs channel</li>
+  <li>Collects results from a results channel</li>
+  <li>Cancels all workers cleanly when the context is done</li>
+  <li>Tracks total throughput with an atomic counter</li>
+</ul>
+
+<h2>main.go</h2>
+<pre><code>package main
+
+import (
+	"context"
+	"fmt"
+	"math/rand"
+	"sync"
+	"sync/atomic"
+	"time"
+)
+
+type Job struct {
+	ID    int
+	Input int
+}
+
+type Result struct {
+	JobID  int
+	Output int
+	Worker int
+}
+
+// worker pulls jobs from the jobs channel until it is closed or ctx is done.
+func worker(ctx context.Context, id int, jobs &lt;-chan Job, results chan&lt;- Result, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for {
+		select {
+		case &lt;-ctx.Done():
+			return
+		case job, ok := &lt;-jobs:
+			if !ok {
+				return
+			}
+			// Simulate variable-duration work.
+			time.Sleep(time.Duration(rand.Intn(50)) * time.Millisecond)
+			results &lt;- Result{
+				JobID:  job.ID,
+				Output: job.Input * job.Input,
+				Worker: id,
+			}
+		}
+	}
+}
+
+func main() {
+	const (
+		numWorkers = 5
+		numJobs    = 20
+	)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	jobs := make(chan Job, numJobs)
+	results := make(chan Result, numJobs)
+
+	// Start workers.
+	var wg sync.WaitGroup
+	for i := range numWorkers {
+		wg.Add(1)
+		go worker(ctx, i+1, jobs, results, &amp;wg)
+	}
+
+	// Send jobs then close the channel so workers know when to stop.
+	for i := range numJobs {
+		jobs &lt;- Job{ID: i + 1, Input: i + 1}
+	}
+	close(jobs)
+
+	// Close results once all workers are done.
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	// Collect results.
+	var processed atomic.Int64
+	for r := range results {
+		processed.Add(1)
+		fmt.Printf("job %2d → %4d  (worker %d)\n", r.JobID, r.Output, r.Worker)
+	}
+
+	fmt.Printf("\nprocessed %d jobs with %d workers\n", processed.Load(), numWorkers)
+}
+</code></pre>
+
+<h2>Try it</h2>
+<pre><code>go run main.go
+</code></pre>
+<p>Notice that jobs complete out of order — that's concurrency at work. Try changing <code>numWorkers</code> to 1 to see sequential processing.</p>
+
+<h2>Key concepts</h2>
+<dl>
+  <dt>Fan-out with a shared channel</dt>
+  <dd>Multiple goroutines reading from the same channel naturally load-balance: each job is picked up by whichever worker finishes first.</dd>
+  <dt>Closing channels as a signal</dt>
+  <dd><code>close(jobs)</code> is how the producer tells workers there is no more work. The <code>ok</code> value in <code>job, ok := &lt;-jobs</code> is <code>false</code> when the channel is closed and empty.</dd>
+  <dt>Context cancellation</dt>
+  <dd>The <code>select</code> inside each worker checks <code>ctx.Done()</code> first, so a timeout or explicit cancel propagates to all goroutines instantly.</dd>
+  <dt><code>sync/atomic</code></dt>
+  <dd><code>atomic.Int64</code> lets multiple goroutines increment a counter without a mutex — ideal for simple counters on the hot path.</dd>
+</dl>
+
+<div class="Practice-next">
+  <a href="/practice/">← Back to Go in Practice</a>
+</div>
+
+</div>

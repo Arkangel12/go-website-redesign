@@ -1,0 +1,292 @@
+<!--{
+  "Title": "Common Mistakes in Go",
+  "breadcrumb": true,
+  "go_version": "1.18"
+}-->
+
+<p>
+This guide covers mistakes that Go beginners and developers coming from other languages
+frequently make. Each section shows what's wrong, why it fails, and the correct approach.
+</p>
+
+<h2 id="nil-interface">Comparing a non-nil interface to nil</h2>
+
+<p>
+An interface value is only <code>nil</code> when both its type and value are nil.
+A typed nil pointer wrapped in an interface is <em>not</em> nil.
+</p>
+
+<pre><code>// Wrong — logs false even though err looks "empty"
+func getError() error {
+    var p *MyError = nil
+    return p          // returns an interface holding (*MyError, nil) — not nil!
+}
+
+err := getError()
+fmt.Println(err == nil) // false
+</code></pre>
+
+<pre><code>// Correct — return untyped nil
+func getError() error {
+    if bad {
+        return &MyError{msg: "oops"}
+    }
+    return nil   // untyped nil → both type and value are nil
+}
+</code></pre>
+
+<h2 id="goroutine-leak">Goroutine leaks</h2>
+
+<p>
+A goroutine that blocks forever (waiting on a channel that is never written to,
+or a context that is never cancelled) is a leak. Leaks accumulate over the
+lifetime of a long-running service.
+</p>
+
+<pre><code>// Wrong — goroutine leaks if caller forgets to close ch
+func process(ch &lt;-chan int) {
+    go func() {
+        for v := range ch {
+            fmt.Println(v)
+        }
+    }()
+}
+</code></pre>
+
+<pre><code>// Correct — pass a context so the goroutine can be cancelled
+func process(ctx context.Context, ch &lt;-chan int) {
+    go func() {
+        for {
+            select {
+            case &lt;-ctx.Done():
+                return
+            case v, ok := &lt;-ch:
+                if !ok { return }
+                fmt.Println(v)
+            }
+        }
+    }()
+}
+</code></pre>
+
+<h2 id="loop-variable-capture">Loop variable capture in closures</h2>
+
+<p>
+Before Go 1.22, loop variables are shared across iterations. A closure that
+captures a loop variable sees only the <em>last</em> value of that variable.
+</p>
+
+<pre><code>// Wrong (Go &lt; 1.22) — all goroutines print the same value
+for _, v := range []int{1, 2, 3} {
+    go func() {
+        fmt.Println(v) // captures the loop variable, not a copy
+    }()
+}
+</code></pre>
+
+<pre><code>// Correct (Go &lt; 1.22) — shadow the variable inside the loop
+for _, v := range []int{1, 2, 3} {
+    v := v // new variable per iteration
+    go func() {
+        fmt.Println(v)
+    }()
+}
+
+// In Go 1.22+ this is fixed automatically — each iteration has its own variable.
+</code></pre>
+
+<h2 id="slice-copy-semantics">Slice vs. array copy semantics</h2>
+
+<p>
+Slices are reference types: assigning a slice copies the header (pointer, length,
+capacity) but not the underlying array. Modifying elements of the copy modifies the
+original.
+</p>
+
+<pre><code>// Surprising — b and a share the same backing array
+a := []int{1, 2, 3}
+b := a
+b[0] = 99
+fmt.Println(a[0]) // 99
+</code></pre>
+
+<pre><code>// Correct — use copy() to get an independent slice
+a := []int{1, 2, 3}
+b := make([]int, len(a))
+copy(b, a)
+b[0] = 99
+fmt.Println(a[0]) // 1
+</code></pre>
+
+<h2 id="map-zero-value">Forgetting to initialise a map</h2>
+
+<p>
+The zero value of a map is <code>nil</code>. Writing to a nil map panics.
+</p>
+
+<pre><code>// Wrong — panic: assignment to entry in nil map
+var counts map[string]int
+counts["a"]++
+</code></pre>
+
+<pre><code>// Correct — initialise with make
+counts := make(map[string]int)
+counts["a"]++
+</code></pre>
+
+<h2 id="defer-in-loop">defer inside a loop</h2>
+
+<p>
+<code>defer</code> runs when the <em>function</em> returns, not when the block
+or loop iteration exits. Deferring inside a loop accumulates all defers until the
+function ends, which can exhaust file descriptors or hold locks longer than intended.
+</p>
+
+<pre><code>// Wrong — all files stay open until processAll returns
+func processAll(paths []string) {
+    for _, p := range paths {
+        f, _ := os.Open(p)
+        defer f.Close() // deferred until processAll returns, not until iteration ends
+        process(f)
+    }
+}
+</code></pre>
+
+<pre><code>// Correct — wrap the body in a helper function
+func processAll(paths []string) {
+    for _, p := range paths {
+        processOne(p)
+    }
+}
+
+func processOne(path string) {
+    f, err := os.Open(path)
+    if err != nil { return }
+    defer f.Close() // now defers until processOne returns
+    process(f)
+}
+</code></pre>
+
+<h2 id="error-wrapping">Losing error context</h2>
+
+<p>
+Returning a bare error discards the context of where it occurred.
+Use <code>fmt.Errorf("...: %w", err)</code> to wrap errors with context while
+keeping the original inspectable with <code>errors.Is</code> / <code>errors.As</code>.
+</p>
+
+<pre><code>// Wrong — caller cannot tell what failed
+func readConfig(path string) (Config, error) {
+    data, err := os.ReadFile(path)
+    if err != nil {
+        return Config{}, err // context lost
+    }
+    // ...
+}
+</code></pre>
+
+<pre><code>// Correct — wrap with %w to add context and preserve the original
+func readConfig(path string) (Config, error) {
+    data, err := os.ReadFile(path)
+    if err != nil {
+        return Config{}, fmt.Errorf("readConfig %s: %w", path, err)
+    }
+    // ...
+}
+</code></pre>
+
+<h2 id="channel-direction">Ignoring channel direction in function signatures</h2>
+
+<p>
+Specifying channel direction (<code>&lt;-chan</code>, <code>chan&lt;-</code>) in
+function parameters makes intent explicit and lets the compiler catch misuse.
+</p>
+
+<pre><code>// Imprecise — accepts both send and receive channels
+func consume(ch chan int) { ... }
+</code></pre>
+
+<pre><code>// Correct — declare only the operations this function needs
+func consume(ch &lt;-chan int) { ... } // receive-only
+func produce(ch chan&lt;- int) { ... } // send-only
+</code></pre>
+
+<h2 id="mutex-copy">Copying a sync.Mutex</h2>
+
+<p>
+<code>sync.Mutex</code> (and all sync types) must not be copied after first use.
+Embedding a mutex in a struct and then copying the struct copies the mutex state,
+which breaks its invariants.
+</p>
+
+<pre><code>// Wrong — copying the struct copies the mutex
+type Counter struct {
+    mu    sync.Mutex
+    value int
+}
+
+func cloneCounter(c Counter) Counter {
+    return c // copies the mutex — race conditions ahead
+}
+</code></pre>
+
+<pre><code>// Correct — use a pointer receiver and never copy
+func cloneCounter(c *Counter) *Counter {
+    c.mu.Lock()
+    defer c.mu.Unlock()
+    return &Counter{value: c.value} // fresh mutex, copied value
+}
+</code></pre>
+
+<h2 id="string-byte-conversion">Unnecessary string↔[]byte conversions in hot paths</h2>
+
+<p>
+Each <code>string(b)</code> or <code>[]byte(s)</code> allocates. In hot paths,
+use <code>strings.Builder</code>, <code>bytes.Buffer</code>, or the
+<code>unsafe</code> package (with care) to avoid allocations.
+</p>
+
+<pre><code>// Slow — allocates a new string on every iteration
+for _, b := range data {
+    process(string(b))
+}
+</code></pre>
+
+<pre><code>// Better — convert once outside the loop, or redesign to operate on []byte
+func process(b []byte) { ... } // accept []byte directly
+</code></pre>
+
+<h2 id="generic-constraint">Type constraints vs. type sets (generics)</h2>
+
+<p>
+In Go generics, a constraint defines a <em>type set</em> — the set of types a type
+parameter may be instantiated with. A constraint interface can only be used as a
+type parameter constraint, not as a regular interface value.
+</p>
+
+<pre><code>// Wrong — cannot use a constraint interface as a variable type
+type Number interface {
+    ~int | ~float64
+}
+
+var n Number = 42 // compile error: interface contains type constraints
+</code></pre>
+
+<pre><code>// Correct — use the constraint only as a type parameter bound
+func Sum[T Number](values []T) T {
+    var total T
+    for _, v := range values {
+        total += v
+    }
+    return total
+}
+</code></pre>
+
+<h2 id="more">Further reading</h2>
+
+<ul>
+  <li><a href="/doc/effective_go">Effective Go</a> — idiomatic Go patterns</li>
+  <li><a href="/ref/spec">Language Specification</a> — authoritative reference</li>
+  <li><a href="/blog/errors-are-values">Errors are values</a> — error handling philosophy</li>
+  <li><a href="/blog/context">Go Concurrency Patterns: Context</a></li>
+</ul>

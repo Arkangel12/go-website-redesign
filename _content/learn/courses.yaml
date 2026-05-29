@@ -1,28 +1,39 @@
   - title: Codecademy
-    content: This course covers setting up a Go environment, the fundamentals of
-      Go, and will walk you through building a few sample projects.
-    url: https://www.codecademy.com/learn/learn-go?utm_source=customer_io&utm_campaign=oct_21_golaunch&utm_medium=email&utm_content=header_img
+    content: Setting up a Go environment, the fundamentals of Go, and building a few sample projects.
+    url: https://www.codecademy.com/learn/learn-go
     thumbnail: /images/learn/codecademy_light.svg
     thumbnailDark: /images/learn/codecademy_dark.svg
     cta: Learn more
+    level: beginner
+    duration_minutes: 480
+    tags: [basics, course]
+
   - title: Exercism.io
-    content: Tackle community-sourced Go challenges in this interactive course,
-      working with other participants and mentors along the way.
+    content: Tackle community-sourced Go challenges, working with other participants and mentors.
     url: https://exercism.io/tracks/go
     thumbnail: /images/learn/exercism_light.svg
     thumbnailDark: /images/learn/exercism_dark.svg
     cta: Learn more
+    level: intermediate
+    duration_minutes: 300
+    tags: [practice, challenges, community]
+
   - title: Google Developers Codelabs
-    content: Get started with a free codelab that walks you through using Go to
-      build and publish a Google Cloud Function.
+    content: A free codelab that walks you through using Go to build and publish a Google Cloud Function.
     url: https://codelabs.developers.google.com/codelabs/cloud-functions-go-http/#0
     thumbnail: /images/learn/codelabs_light.svg
     thumbnailDark: /images/learn/codelabs_dark.svg
     cta: Learn more
+    level: intermediate
+    duration_minutes: 45
+    tags: [cloud, functions]
+
   - title: Gophercises
-    content: Build your confidence in using Go with this course, where you’ll
-      build roughly twenty different Go applications.
+    content: Build your confidence with Go by building roughly twenty different applications.
     url: https://gophercises.com/
     thumbnail: /images/learn/gophercises_light.png
     thumbnailDark: /images/learn/gophercises_dark.png
     cta: Learn more
+    level: intermediate
+    duration_minutes: 600
+    tags: [practice, projects, community]

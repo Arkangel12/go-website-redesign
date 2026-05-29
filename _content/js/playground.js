@@ -129,17 +129,20 @@ function HTTPTransport(enableVet) {
       seq++;
       var cur = seq;
       var playing;
-      $.ajax('/_/compile?backend=' + (options.backend || ''), {
-        type: 'POST',
-        data: { version: 2, body: body, withVet: enableVet },
-        dataType: 'json',
-        success: function(data) {
+      var params = new URLSearchParams({ version: '2', body: body });
+      if (enableVet) params.set('withVet', 'true');
+      fetch('/_/compile?backend=' + (options.backend || ''), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
           if (seq != cur) return;
           if (!data) return;
           if (playing != null) playing.Stop();
           if (data.Errors) {
             if (data.Errors === 'process took too long') {
-              // Playback the output that was captured before the timeout.
               playing = playback(output, data);
             } else {
               buildFailed(output, data.Errors);
@@ -147,11 +150,10 @@ function HTTPTransport(enableVet) {
             return;
           }
           playing = playback(output, data);
-        },
-        error: function() {
+        })
+        .catch(function() {
           error(output, 'Error communicating with remote server.');
-        },
-      });
+        });
       return {
         Kill: function() {
           if (playing != null) playing.Stop();
@@ -261,10 +263,10 @@ function PlaygroundOutput(el) {
   function lineHighlight(error) {
     var regex = /prog.go:([0-9]+)/g;
     var r = regex.exec(error);
+    var lines = document.querySelectorAll('.lines div');
     while (r) {
-      $('.lines div')
-        .eq(r[1] - 1)
-        .addClass('lineerror');
+      var lineEl = lines[r[1] - 1];
+      if (lineEl) lineEl.classList.add('lineerror');
       r = regex.exec(error);
     }
   }
@@ -275,25 +277,33 @@ function PlaygroundOutput(el) {
     };
   }
   function lineClear() {
-    $('.lineerror').removeClass('lineerror');
+    document.querySelectorAll('.lineerror').forEach(function(el) {
+      el.classList.remove('lineerror');
+    });
   }
 
   // opts is an object with these keys
-  //  codeEl - code editor element
-  //  outputEl - program output element
-  //  runEl - run button element
-  //  fmtEl - fmt button element (optional)
-  //  fmtImportEl - fmt "imports" checkbox element (optional)
-  //  shareEl - share button element (optional)
-  //  shareURLEl - share URL text input element (optional)
+  //  codeEl - code editor element or CSS selector
+  //  outputEl - program output element or CSS selector
+  //  runEl - run button element or CSS selector
+  //  fmtEl - fmt button element or CSS selector (optional)
+  //  fmtImportEl - fmt "imports" checkbox element or CSS selector (optional)
+  //  shareEl - share button element or CSS selector (optional)
+  //  shareURLEl - share URL text input element or CSS selector (optional)
   //  shareRedirect - base URL to redirect to on share (optional)
-  //  toysEl - toys select element (optional)
+  //  toysEl - toys select element or CSS selector (optional)
   //  enableHistory - enable using HTML5 history API (optional)
   //  transport - playground transport to use (default is HTTPTransport)
   //  enableShortcuts - whether to enable shortcuts (Ctrl+S/Cmd+S to save) (default is false)
   //  enableVet - enable running vet and displaying its errors
+  function sel(v) {
+    if (!v) return null;
+    if (typeof v === 'string') return document.querySelector(v);
+    return v;
+  }
+
   function playground(opts) {
-    var code = $(opts.codeEl);
+    var code = sel(opts.codeEl);
     var transport = opts['transport'] || new HTTPTransport(opts['enableVet']);
     var running;
 
@@ -321,9 +331,7 @@ function PlaygroundOutput(el) {
       }, 1);
     }
 
-    // NOTE(cbro): e is a jQuery event, not a DOM event.
     function handleSaveShortcut(e) {
-      if (e.isDefaultPrevented()) return false;
       if (!e.metaKey && !e.ctrlKey) return false;
       if (e.key != 'S' && e.key != 's') return false;
 
@@ -364,15 +372,17 @@ function PlaygroundOutput(el) {
       }
       return true;
     }
-    code.unbind('keydown').bind('keydown', keyHandler);
-    var outdiv = $(opts.outputEl).empty();
-    var output = $('<pre/>').appendTo(outdiv);
+    code.addEventListener('keydown', keyHandler);
+    var outdiv = sel(opts.outputEl);
+    outdiv.innerHTML = '';
+    var output = document.createElement('pre');
+    outdiv.appendChild(output);
 
     function body() {
-      return $(opts.codeEl).val();
+      return code.value;
     }
     function setBody(text) {
-      $(opts.codeEl).val(text);
+      code.value = text;
     }
     function origin(href) {
       return ('' + href)
@@ -383,21 +393,15 @@ function PlaygroundOutput(el) {
 
     var pushedPlay = window.location.pathname == '/play/';
     function inputChanged() {
-      if (pushedPlay) {
-        return;
-      }
+      if (pushedPlay) return;
       pushedPlay = true;
-      $(opts.shareURLEl).hide();
-      $(opts.toysEl).show();
+      if (shareURLEl) shareURLEl.style.display = 'none';
+      if (toysEl) toysEl.style.display = '';
       var path = window.location.pathname;
       var i = path.indexOf('/play/');
-      var p = path.substr(0, i+6);
-      if (opts.versionEl !== null) {
-        var v = $(opts.versionEl).val();
-        if (v != '') {
-          p += '?v=' + v;
-        }
-      }
+      var p = path.substr(0, i + 6);
+      var vEl = sel(opts.versionEl);
+      if (vEl && vEl.value) p += '?v=' + vEl.value;
       window.history.pushState(null, '', p);
     }
     function popState(e) {
@@ -416,53 +420,49 @@ function PlaygroundOutput(el) {
       opts.enableHistory
     ) {
       rewriteHistory = true;
-      code[0].addEventListener('input', inputChanged);
+      code.addEventListener('input', inputChanged);
       window.addEventListener('popstate', popState);
     }
 
     function backend() {
-      if (!opts.versionEl) {
-        return '';
-      }
-      var vers = $(opts.versionEl);
-      if (!vers) {
-        return '';
-      }
-      return vers.val();
+      var versEl = sel(opts.versionEl);
+      if (!versEl) return '';
+      return versEl.value || '';
     }
 
-    function setError(error) {
+    function setError(err) {
       if (running) running.Kill();
       lineClear();
-      lineHighlight(error);
-      output
-        .empty()
-        .addClass('error')
-        .text(error);
+      lineHighlight(err);
+      output.innerHTML = '';
+      output.classList.add('error');
+      output.textContent = err;
     }
     function loading() {
       lineClear();
       if (running) running.Kill();
-      output.removeClass('error').text('Waiting for remote server...');
+      output.classList.remove('error');
+      output.textContent = 'Waiting for remote server...';
     }
     function runOnly() {
       loading();
       running = transport.Run(
         body(),
-        highlightOutput(PlaygroundOutput(output[0])),
+        highlightOutput(PlaygroundOutput(output)),
         {backend: backend()},
       );
     }
 
     function fmtAnd(run) {
       loading();
-      var data = { body: body() };
-      data['imports'] = 'true';
-      $.ajax('/_/fmt?backend='+backend(), {
-        data: data,
-        type: 'POST',
-        dataType: 'json',
-        success: function(data) {
+      var params = new URLSearchParams({ body: body(), imports: 'true' });
+      fetch('/_/fmt?backend=' + backend(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
           if (data.Error) {
             setError(data.Error);
           } else {
@@ -470,25 +470,23 @@ function PlaygroundOutput(el) {
             setError('');
           }
           run();
-        },
-        error: function() {
+        })
+        .catch(function() {
           setError('Error communicating with remote server.');
-        },
-      });
+        });
     }
 
     function loadShare(id) {
-      $.ajax('/_/share?id='+id, {
-        processData: false,
-        type: 'GET',
-        complete: function(xhr) {
-          if(xhr.status != 200) {
+      fetch('/_/share?id=' + id)
+        .then(function(r) {
+          if (r.status !== 200) {
             setBody('Cannot load shared snippet; try again.');
             return;
           }
-          setBody(xhr.responseText);
-        },
-      })
+          return r.text();
+        })
+        .then(function(text) { if (text) setBody(text); })
+        .catch(function() { setBody('Cannot load shared snippet; try again.'); });
     }
 
     function fmt() {
@@ -499,7 +497,7 @@ function PlaygroundOutput(el) {
       fmtAnd(runOnly);
     }
 
-    var shareURL; // jQuery element to show the shared URL.
+    var shareURLEl = sel(opts.shareURLEl);
     var sharing = false; // true if there is a pending request.
     var shareCallbacks = [];
     function share(opt_callback) {
@@ -508,67 +506,61 @@ function PlaygroundOutput(el) {
       if (sharing) return;
       sharing = true;
 
-      var errorMessages = {
-        413: 'Snippet is too large to share.'
-      };
-
       var sharingData = body();
-      $.ajax('/_/share', {
-        processData: false,
-        data: sharingData,
-        type: 'POST',
-        contentType: 'text/plain; charset=utf-8',
-        complete: function(xhr) {
+      fetch('/_/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        body: sharingData,
+      })
+        .then(function(r) {
           sharing = false;
-          if (xhr.status != 200) {
-            var alertMsg = errorMessages[xhr.status] ? errorMessages[xhr.status] : 'Server error; try again.';
-            alert(alertMsg);
-            return;
+          if (r.status !== 200) {
+            var msgs = { 413: 'Snippet is too large to share.' };
+            alert(msgs[r.status] || 'Server error; try again.');
+            return null;
           }
+          return r.text();
+        })
+        .then(function(id) {
+          if (!id) return;
           if (opts.shareRedirect) {
-            window.location = opts.shareRedirect + xhr.responseText;
+            window.location = opts.shareRedirect + id;
           }
-          var path = '/play/p/' + xhr.responseText;
-          if (opts.versionEl !== null && $(opts.versionEl).val() != "") {
-            path += "?v=" + $(opts.versionEl).val();
-          }
+          var path = '/play/p/' + id;
+          var versEl = sel(opts.versionEl);
+          if (versEl && versEl.value) path += '?v=' + versEl.value;
           var url = origin(window.location) + path;
-          for (var i = 0; i < shareCallbacks.length; i++) {
-            shareCallbacks[i](url);
-          }
+          shareCallbacks.forEach(function(fn) { fn(url); });
           shareCallbacks = [];
 
-          if (shareURL) {
-            shareURL
-              .show()
-              .val(url)
-              .focus()
-              .select();
-
-            $(opts.toysEl).hide();
+          if (shareURLEl) {
+            shareURLEl.style.display = '';
+            shareURLEl.value = url;
+            shareURLEl.focus();
+            shareURLEl.select();
+            var toysEl = sel(opts.toysEl);
+            if (toysEl) toysEl.style.display = 'none';
             if (rewriteHistory) {
-              var historyData = { code: sharingData };
-              window.history.pushState(historyData, '', path);
+              window.history.pushState({ code: sharingData }, '', path);
               pushedPlay = false;
             }
           }
-        },
-      });
+        })
+        .catch(function() { sharing = false; alert('Server error; try again.'); });
     }
 
-    $(opts.runEl).click(run);
-    $(opts.fmtEl).click(fmt);
+    var runEl = sel(opts.runEl);
+    var fmtEl = sel(opts.fmtEl);
+    if (runEl) runEl.addEventListener('click', run);
+    if (fmtEl) fmtEl.addEventListener('click', fmt);
 
     if (
       opts.shareEl !== null &&
       (opts.shareURLEl !== null || opts.shareRedirect !== null)
     ) {
-      if (opts.shareURLEl) {
-        shareURL = $(opts.shareURLEl).hide();
-      }
-      $(opts.shareEl).click(function() {
-        share();
-      });
+      if (shareURLEl) shareURLEl.style.display = 'none';
+      var shareEl = sel(opts.shareEl);
+      if (shareEl) shareEl.addEventListener('click', function() { share(); });
     }
 
     var path = window.location.pathname;
@@ -583,43 +575,44 @@ function PlaygroundOutput(el) {
       toyDisable = true;
     }
 
-    if (opts.toysEl !== null) {
-      $(opts.toysEl).bind('change', function() {
+    var toysEl = sel(opts.toysEl);
+    if (toysEl) {
+      toysEl.addEventListener('change', function() {
         if (toyDisable) {
           toyDisable = false;
           return;
         }
-        var toy = $(this).val();
-        $.ajax('/doc/play/' + toy, {
-          processData: false,
-          type: 'GET',
-          complete: function(xhr) {
-            if (xhr.status != 200) {
-              alert('Server error; try again.');
-              return;
-            }
-            setBody(xhr.responseText);
-            if (toy.includes('-dev') && opts.versionEl !== null) {
-              $(opts.versionEl).val('gotip');
-            }
+        var toy = toysEl.value;
+        fetch('/doc/play/' + toy)
+          .then(function(r) {
+            if (r.status !== 200) { alert('Server error; try again.'); return null; }
+            return r.text();
+          })
+          .then(function(text) {
+            if (!text) return;
+            setBody(text);
+            var versEl = sel(opts.versionEl);
+            if (toy.includes('-dev') && versEl) versEl.value = 'gotip';
             run();
-          },
-        });
+          });
       });
     }
 
-    if (opts.versionEl !== null) {
-     var select = $(opts.versionEl);
+    var versEl = sel(opts.versionEl);
+    if (versEl) {
       var v = (new URL(window.location)).searchParams.get('v');
-      if (v !== null && v != "") {
-      	select.val(v);
-        if (select.val() != v) {
-          select.append($('<option>', {value: v, text: 'Backend: ' + v}));
-          select.val(v);
+      if (v) {
+        versEl.value = v;
+        if (versEl.value !== v) {
+          var opt = document.createElement('option');
+          opt.value = v;
+          opt.textContent = 'Backend: ' + v;
+          versEl.appendChild(opt);
+          versEl.value = v;
         }
       }
       if (opts.enableHistory) {
-        select.bind('change', inputChanged);
+        versEl.addEventListener('change', inputChanged);
       }
     }
   }

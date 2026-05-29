@@ -1,0 +1,250 @@
+<!--{
+  "Title": "The Go Programming Language",
+  "summary": "Go is an open source programming language that makes it simple to build secure, scalable systems.",
+  "Template": true
+}-->
+
+{{$canShare := not googleCN}}
+
+<div class="Home">
+
+<!-- ── HERO ─────────────────────────────────────────────────── -->
+<section class="HomeHero">
+  <div class="HomeHero-glow" aria-hidden="true"></div>
+
+  <div class="HomeHero-left">
+    <p class="SectionLabel">Open Source · Google · v1.24</p>
+    <h1 class="HomeHero-heading">
+      Build <span class="HomeHero-accent">fast.</span><br>
+      Ship <span class="HomeHero-accent">simple.</span><br>
+      <span class="HomeHero-dim">Scale</span> anything.
+    </h1>
+    <p class="HomeHero-desc">
+      Go is a statically typed, compiled language with built-in concurrency,
+      a minimal syntax, and a standard library that actually ships production software.
+    </p>
+    <div class="HomeHero-actions">
+      <div data-version="" class="js-latestGoVersion">
+        <a class="HomeBtn HomeBtn--primary" href="/start/" role="button">Get Started</a>
+        <a class="HomeBtn HomeBtn--ghost js-downloadBtn" href="/dl/" role="button">Download</a>
+      </div>
+    </div>
+    <div class="HomeHero-stats" aria-label="Go by the numbers">
+      <div class="HomeStat">
+        <span class="HomeStat-value">11yr</span>
+        <span class="HomeStat-label">Since 1.0</span>
+      </div>
+      <div class="HomeStat">
+        <span class="HomeStat-value">#7</span>
+        <span class="HomeStat-label">TIOBE Index</span>
+      </div>
+      <div class="HomeStat">
+        <span class="HomeStat-value">~2ms</span>
+        <span class="HomeStat-label">Compile time</span>
+      </div>
+      <div class="HomeStat">
+        <span class="HomeStat-value">70%+</span>
+        <span class="HomeStat-label">DevOps usage</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="HomeHero-right">
+    <div class="Terminal js-terminal">
+      <div class="Terminal-bar">
+        <div class="Terminal-dots" aria-hidden="true">
+          <div class="Terminal-dot Terminal-dot--red"></div>
+          <div class="Terminal-dot Terminal-dot--yellow"></div>
+          <div class="Terminal-dot Terminal-dot--green"></div>
+        </div>
+        <span class="Terminal-title">main.go — go run .</span>
+        <a class="Terminal-openFull" href="/play/" title="Open full playground" aria-label="Open full playground">⤢</a>
+      </div>
+      <div class="Terminal-body js-terminalBody" aria-live="polite" aria-label="Code example"></div>
+      <div class="Terminal-tabs" role="tablist" aria-label="Code examples">
+        <button class="Terminal-tab is-active" role="tab" aria-selected="true"  data-snippet="hello">Hello World</button>
+        <button class="Terminal-tab"            role="tab" aria-selected="false" data-snippet="goroutines">Goroutines</button>
+        <button class="Terminal-tab"            role="tab" aria-selected="false" data-snippet="channels">Channels</button>
+        <button class="Terminal-tab"            role="tab" aria-selected="false" data-snippet="generics">Generics</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="HomeHero-scrollHint" aria-hidden="true">
+    <span>Scroll</span>
+    <div class="HomeHero-scrollLine"></div>
+  </div>
+</section>
+
+<!-- ── TRUSTED ───────────────────────────────────────────────── -->
+<div class="HomeTrusted">
+  <p class="HomeTrusted-label">Trusted in production by</p>
+  <div class="HomeTrusted-logos" aria-label="Companies using Go">
+    <span class="HomeTrusted-logo">Google</span>
+    <span class="HomeTrusted-logo">Uber</span>
+    <span class="HomeTrusted-logo">Cloudflare</span>
+    <span class="HomeTrusted-logo">Dropbox</span>
+    <span class="HomeTrusted-logo">Docker</span>
+    <span class="HomeTrusted-logo">Kubernetes</span>
+    <span class="HomeTrusted-logo">Netflix</span>
+    <span class="HomeTrusted-logo">Twitch</span>
+    <span class="HomeTrusted-logo">Mercado Libre</span>
+  </div>
+</div>
+
+<!-- ── WHY GO ─────────────────────────────────────────────────── -->
+<section class="HomeSection HomeSection--surface">
+  <div class="HomeSection-inner">
+    <p class="SectionLabel">Why Go</p>
+    <h2 class="HomeSection-h2">Engineered for the<br>way we build today.</h2>
+    <p class="HomeSection-desc">Not another language with a 1000-page spec. Go was built for teams shipping real systems — cloud infrastructure, CLIs, APIs, and distributed services.</p>
+    <div class="HomePillars">
+      <div class="HomePillar">
+        <div class="HomePillar-icon" aria-hidden="true">⚡</div>
+        <h3>Compiles in seconds</h3>
+        <p>A 100k-line codebase builds in under 2 seconds. Your feedback loop stays tight, even at scale.</p>
+      </div>
+      <div class="HomePillar">
+        <div class="HomePillar-icon" aria-hidden="true">⚙</div>
+        <h3>Native concurrency</h3>
+        <p>Goroutines are lightweight threads you spin up with a single keyword. No callback hell, no async/await complexity.</p>
+      </div>
+      <div class="HomePillar">
+        <div class="HomePillar-icon" aria-hidden="true">⬡</div>
+        <h3>Single binary</h3>
+        <p>Your entire app compiles to one static binary. No runtime dependencies. Drop it in a container and you're done.</p>
+      </div>
+      <div class="HomePillar">
+        <div class="HomePillar-icon" aria-hidden="true">🔒</div>
+        <h3>Secure by default</h3>
+        <p>Memory-safe, no pointer arithmetic, strict typing. Google uses it for security-critical infrastructure.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── USE CASES ─────────────────────────────────────────────── -->
+<section class="HomeSection">
+  <div class="HomeSection-inner">
+    <p class="SectionLabel">Use Cases</p>
+    <h2 class="HomeSection-h2">What people build<br>with Go.</h2>
+    <p class="HomeSection-desc">From serverless functions to Kubernetes itself — Go powers the infrastructure layer of the modern internet.</p>
+    <div class="HomeUCGrid">
+      <div class="HomeUC">
+        <p class="HomeUC-num">01 ——</p>
+        <h3>Cloud &amp; Network Services</h3>
+        <p>Strong ecosystem on GCP, AWS, and Azure. Kubernetes, Terraform, and Docker are all written in Go.</p>
+        <div class="HomeUC-tags">
+          <span class="HomeTag">Kubernetes</span>
+          <span class="HomeTag">Docker</span>
+          <span class="HomeTag">Terraform</span>
+          <span class="HomeTag">Istio</span>
+        </div>
+      </div>
+      <div class="HomeUC">
+        <p class="HomeUC-num">02 ——</p>
+        <h3>Command-line Interfaces</h3>
+        <p>Cobra and Viper make CLI development fast. Deploy single binaries with zero install friction.</p>
+        <div class="HomeUC-tags">
+          <span class="HomeTag">Cobra</span>
+          <span class="HomeTag">Viper</span>
+          <span class="HomeTag">Bubble Tea</span>
+        </div>
+      </div>
+      <div class="HomeUC">
+        <p class="HomeUC-num">03 ——</p>
+        <h3>Web APIs &amp; Microservices</h3>
+        <p>Low memory footprint. Fast cold start. Handles tens of thousands of concurrent connections with ease.</p>
+        <div class="HomeUC-tags">
+          <span class="HomeTag">net/http</span>
+          <span class="HomeTag">Gin</span>
+          <span class="HomeTag">Echo</span>
+          <span class="HomeTag">gRPC</span>
+        </div>
+      </div>
+      <div class="HomeUC">
+        <p class="HomeUC-num">04 ——</p>
+        <h3>DevOps &amp; SRE Tooling</h3>
+        <p>Fast compile times, automatic formatter, built-in test runner and profiler. SREs love Go for operational simplicity.</p>
+        <div class="HomeUC-tags">
+          <span class="HomeTag">OpenTelemetry</span>
+          <span class="HomeTag">Prometheus</span>
+          <span class="HomeTag">Grafana</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── BENCHMARK ─────────────────────────────────────────────── -->
+<section class="HomeSection HomeSection--surface">
+  <div class="HomeSection-inner">
+    <p class="SectionLabel">Performance</p>
+    <h2 class="HomeSection-h2">Benchmarks that<br>matter in production.</h2>
+    <p class="HomeSection-desc">HTTP throughput — requests/second on identical hardware running a simple JSON API, measured with wrk. <a href="https://benchmarksgame-team.pages.debian.net/benchmarksgame/" class="HomeSection-link">Methodology ↗</a></p>
+    <div class="HomeBench js-bench">
+      <div class="HomeBench-row HomeBench-row--header">
+        <span class="HomeBench-lang">Language</span>
+        <span class="HomeBench-throughput">Throughput</span>
+        <span class="HomeBench-val">req/s</span>
+      </div>
+      <div class="HomeBench-row js-benchRow" data-bar="92">
+        <span class="HomeBench-lang HomeBench-lang--go">Go</span>
+        <div class="HomeBench-barWrap"><div class="HomeBench-bar"></div></div>
+        <span class="HomeBench-val">148,200</span>
+      </div>
+      <div class="HomeBench-row js-benchRow" data-bar="98">
+        <span class="HomeBench-lang">Rust</span>
+        <div class="HomeBench-barWrap"><div class="HomeBench-bar HomeBench-bar--alt"></div></div>
+        <span class="HomeBench-val">158,400</span>
+      </div>
+      <div class="HomeBench-row js-benchRow" data-bar="52">
+        <span class="HomeBench-lang">Node.js</span>
+        <div class="HomeBench-barWrap"><div class="HomeBench-bar HomeBench-bar--medium"></div></div>
+        <span class="HomeBench-val">83,100</span>
+      </div>
+      <div class="HomeBench-row js-benchRow" data-bar="18">
+        <span class="HomeBench-lang">Python (FastAPI)</span>
+        <div class="HomeBench-barWrap"><div class="HomeBench-bar HomeBench-bar--slow"></div></div>
+        <span class="HomeBench-val">28,400</span>
+      </div>
+      <div class="HomeBench-row js-benchRow" data-bar="11">
+        <span class="HomeBench-lang">Ruby (Puma)</span>
+        <div class="HomeBench-barWrap"><div class="HomeBench-bar HomeBench-bar--slow"></div></div>
+        <span class="HomeBench-val">17,200</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── INSTALL CTA ────────────────────────────────────────────── -->
+<section class="HomeCTA">
+  <div class="HomeCTA-left">
+    <p class="SectionLabel">Get Started</p>
+    <h2 class="HomeSection-h2">From zero to running<br>in under 5 minutes.</h2>
+    <p class="HomeCTA-desc">Install the toolchain, write your first goroutine, and deploy a binary smaller than most JavaScript bundle configs.</p>
+    <div class="HomeCTA-actions">
+      <a class="HomeBtn HomeBtn--primary" href="/doc/install">Install Go</a>
+      <a class="HomeBtn HomeBtn--ghost" href="/tour/">Take the Tour</a>
+    </div>
+  </div>
+  <div class="HomeInstall">
+    <p class="HomeInstall-label">Install</p>
+    <div class="HomeInstall-platforms">
+      <button class="HomePlatform is-active" data-platform="mac">macOS</button>
+      <button class="HomePlatform" data-platform="linux">Linux</button>
+      <button class="HomePlatform" data-platform="windows">Windows</button>
+    </div>
+    <div class="HomeInstall-divider"></div>
+    <p class="HomeInstall-cmd js-installCmd"
+       data-mac="brew install go"
+       data-linux="sudo apt install golang-go"
+       data-windows="winget install GoLang.Go">brew install go</p>
+    <div class="HomeInstall-divider"></div>
+    <p class="HomeInstall-cmd">go version</p>
+  </div>
+</section>
+
+</div><!-- .Home -->
+
+<script src="/js/index.js"></script>

@@ -8,7 +8,25 @@
     {{- if .breadcrumb}}
       {{ breadcrumbs . }}
     {{- end}}
-    <h1>{{.title}}</h1>
+    {{- if .level}}
+      <span class="Article-level Article-level--{{.level}}">{{.level}}</span>
+    {{- end}}
+    <div class="Article-meta">
+      <h1>{{.title}}</h1>
+      {{- if or .go_version .deprecated}}
+      <div class="Article-badges">
+        {{- if .go_version}}
+        <span class="Article-badge Article-badge--version">Go {{.go_version}}+</span>
+        {{- end}}
+        {{- if .deprecated}}
+        <span class="Article-badge Article-badge--deprecated">Deprecated</span>
+        {{- end}}
+      </div>
+      {{- end}}
+    </div>
+    {{- if strings.HasPrefix .URL "/doc/"}}
+      <a class="Article-editLink" href="https://github.com/golang/website/blob/master/_content{{.URL}}.html">Edit this page on GitHub ✎</a>
+    {{- end}}
     {{.Content}}
 
     {{if .sidebar }}

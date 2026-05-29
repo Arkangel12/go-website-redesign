@@ -78,3 +78,74 @@ test code of conduct
 path /conduct
 capture fullscreen
 capture fullscreen 540x1080
+
+test start page
+path /start/
+capture fullscreen
+capture fullscreen 540x1080
+
+test start page step 2
+path /start/
+eval document.querySelector('[data-step="2"]').click()
+capture fullscreen
+capture fullscreen 540x1080
+
+test start from python
+path /start/from-python
+capture fullscreen
+capture fullscreen 540x1080
+
+test start from javascript
+path /start/from-javascript
+capture fullscreen
+capture fullscreen 540x1080
+
+test start from java
+path /start/from-java
+capture fullscreen
+capture fullscreen 540x1080
+
+test start from dart
+path /start/from-dart
+capture fullscreen
+capture fullscreen 540x1080
+
+test learn page
+path /learn/
+capture fullscreen
+capture fullscreen 540x1080
+
+test doc page with new layout
+path /doc/effective_go
+capture fullscreen
+capture fullscreen 540x1080
+
+test common mistakes guide
+path /doc/common-mistakes
+capture fullscreen
+capture fullscreen 540x1080
+
+test doc index
+path /doc/
+capture fullscreen
+capture fullscreen 540x1080
+
+test practice index
+path /practice/
+capture fullscreen
+capture fullscreen 540x1080
+
+test practice rest api
+path /practice/rest-api
+capture fullscreen
+capture fullscreen 540x1080
+
+test practice cli tool
+path /practice/cli-tool
+capture fullscreen
+capture fullscreen 540x1080
+
+test practice concurrent worker
+path /practice/concurrent-worker
+capture fullscreen
+capture fullscreen 540x1080

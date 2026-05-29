@@ -1,0 +1,208 @@
+<!--{
+  "Title": "REST API Server — Go in Practice"
+}-->
+
+<div class="Practice-example">
+
+<div class="Practice-exampleNav">
+  <a href="/practice/">← Go in Practice</a>
+</div>
+
+<div class="Practice-exampleHeader">
+  <span class="Practice-cardLevel Practice-cardLevel--intermediate">Intermediate</span>
+  <h1>REST API Server</h1>
+  <p class="Practice-exampleSubtitle">A JSON HTTP API with routing, middleware, and graceful shutdown — zero dependencies.</p>
+</div>
+
+<h2>What you'll build</h2>
+<p>A small to-do list API with four endpoints:</p>
+<ul>
+  <li><code>GET  /todos</code> — list all items</li>
+  <li><code>POST /todos</code> — create an item</li>
+  <li><code>GET  /todos/{id}</code> — get one item</li>
+  <li><code>DELETE /todos/{id}</code> — delete an item</li>
+</ul>
+
+<h2>main.go</h2>
+<pre><code>package main
+
+import (
+	"context"
+	"encoding/json"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"strconv"
+	"strings"
+	"sync"
+	"syscall"
+	"time"
+)
+
+type Todo struct {
+	ID   int    `json:"id"`
+	Text string `json:"text"`
+	Done bool   `json:"done"`
+}
+
+type store struct {
+	mu   sync.RWMutex
+	data map[int]Todo
+	next int
+}
+
+func newStore() *store {
+	return &amp;store{data: make(map[int]Todo), next: 1}
+}
+
+func (s *store) list() []Todo {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]Todo, 0, len(s.data))
+	for _, t := range s.data {
+		out = append(out, t)
+	}
+	return out
+}
+
+func (s *store) add(text string) Todo {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	t := Todo{ID: s.next, Text: text}
+	s.data[s.next] = t
+	s.next++
+	return t
+}
+
+func (s *store) get(id int) (Todo, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	t, ok := s.data[id]
+	return t, ok
+}
+
+func (s *store) delete(id int) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	_, ok := s.data[id]
+	delete(s.data, id)
+	return ok
+}
+
+// respond writes JSON and sets Content-Type.
+func respond(w http.ResponseWriter, status int, v any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(v)
+}
+
+// logging is a simple middleware that prints method, path, and duration.
+func logging(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next.ServeHTTP(w, r)
+		log.Printf("%s %s %s", r.Method, r.URL.Path, time.Since(start))
+	})
+}
+
+func main() {
+	db := newStore()
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/todos", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			respond(w, http.StatusOK, db.list())
+		case http.MethodPost:
+			var body struct{ Text string }
+			if err := json.NewDecoder(r.Body).Decode(&amp;body); err != nil || body.Text == "" {
+				respond(w, http.StatusBadRequest, map[string]string{"error": "text required"})
+				return
+			}
+			respond(w, http.StatusCreated, db.add(body.Text))
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
+
+	mux.HandleFunc("/todos/", func(w http.ResponseWriter, r *http.Request) {
+		idStr := strings.TrimPrefix(r.URL.Path, "/todos/")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			respond(w, http.StatusBadRequest, map[string]string{"error": "invalid id"})
+			return
+		}
+		switch r.Method {
+		case http.MethodGet:
+			t, ok := db.get(id)
+			if !ok {
+				respond(w, http.StatusNotFound, map[string]string{"error": "not found"})
+				return
+			}
+			respond(w, http.StatusOK, t)
+		case http.MethodDelete:
+			if !db.delete(id) {
+				respond(w, http.StatusNotFound, map[string]string{"error": "not found"})
+				return
+			}
+			w.WriteHeader(http.StatusNoContent)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
+
+	srv := &amp;http.Server{
+		Addr:    ":8080",
+		Handler: logging(mux),
+	}
+
+	go func() {
+		log.Println("listening on :8080")
+		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
+	}()
+
+	// Graceful shutdown on SIGINT / SIGTERM.
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	&lt;-quit
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	srv.Shutdown(ctx)
+	log.Println("server stopped")
+}
+</code></pre>
+
+<h2>Try it</h2>
+<pre><code>go run main.go &amp;
+
+# create a todo
+curl -s -X POST localhost:8080/todos \
+     -H 'Content-Type: application/json' \
+     -d '{"text":"learn Go"}' | jq .
+
+# list todos
+curl -s localhost:8080/todos | jq .
+
+# delete it
+curl -s -X DELETE localhost:8080/todos/1
+</code></pre>
+
+<h2>Key concepts</h2>
+<dl>
+  <dt><code>sync.RWMutex</code></dt>
+  <dd>Allows multiple concurrent readers but only one writer — the right tool for a read-heavy in-memory store.</dd>
+  <dt>Middleware pattern</dt>
+  <dd>A function that accepts an <code>http.Handler</code> and returns a new one. Chain as many as you like.</dd>
+  <dt>Graceful shutdown</dt>
+  <dd><code>srv.Shutdown</code> stops accepting new connections and waits for in-flight requests to finish before returning.</dd>
+</dl>
+
+<div class="Practice-next">
+  <a href="/practice/cli-tool">Next: CLI Tool →</a>
+</div>
+
+</div>

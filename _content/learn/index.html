@@ -1,0 +1,188 @@
+<!--{
+  "Title": "Learn Go",
+  "breadcrumbTitle": "Learn",
+  "Template": true
+}-->
+
+<!-- ── Curriculum Board ─────────────────────────────────────────── -->
+<div class="LearnBoard">
+
+<div class="LearnBoard-header">
+  <h1 class="LearnBoard-title">Learn Go</h1>
+  <p class="LearnBoard-subtitle">Choose your level and start building.</p>
+  <a class="LearnBoard-startCta" href="/start/">New to Go? Start the guided onboarding →</a>
+</div>
+
+<!-- ── Skill path cards ─────────────────────────────────────────── -->
+<div class="LearnBoard-paths">
+
+  <div class="LearnBoard-path LearnBoard-path--beginner">
+    <div class="LearnBoard-pathHeader">
+      <span class="LearnBoard-pathDot"></span>
+      <h2 class="LearnBoard-pathTitle">Beginner</h2>
+      <p class="LearnBoard-pathDesc">No Go experience needed</p>
+    </div>
+    <ul class="LearnBoard-pathItems">
+      <li><a href="/tour/">Tour of Go</a> <span class="LearnBoard-duration">~2 h</span></li>
+      <li><a href="/start/">Get Started guide</a> <span class="LearnBoard-duration">~30 min</span></li>
+      <li><a href="/doc/tutorial/getting-started">Your first module</a> <span class="LearnBoard-duration">~15 min</span></li>
+      <li><a href="/doc/code">How to write Go code</a> <span class="LearnBoard-duration">~20 min</span></li>
+      <li><a href="https://gobyexample.com">Go by Example</a></li>
+    </ul>
+  </div>
+
+  <div class="LearnBoard-path LearnBoard-path--intermediate">
+    <div class="LearnBoard-pathHeader">
+      <span class="LearnBoard-pathDot"></span>
+      <h2 class="LearnBoard-pathTitle">Intermediate</h2>
+      <p class="LearnBoard-pathDesc">Know the basics, ready for real projects</p>
+    </div>
+    <ul class="LearnBoard-pathItems">
+      <li><a href="/doc/effective_go">Effective Go</a> <span class="LearnBoard-duration">~3 h</span></li>
+      <li><a href="/doc/tutorial/web-service-gin">Build a REST API</a> <span class="LearnBoard-duration">~45 min</span></li>
+      <li><a href="/doc/tutorial/database-access">Database access</a> <span class="LearnBoard-duration">~40 min</span></li>
+      <li><a href="/doc/tutorial/generics">Generics</a> <span class="LearnBoard-duration">~20 min</span></li>
+      <li><a href="/doc/tutorial/fuzz-testing">Fuzz testing</a> <span class="LearnBoard-duration">~20 min</span></li>
+      <li><a href="/blog/pipelines">Concurrency patterns</a></li>
+    </ul>
+  </div>
+
+  <div class="LearnBoard-path LearnBoard-path--advanced">
+    <div class="LearnBoard-pathHeader">
+      <span class="LearnBoard-pathDot"></span>
+      <h2 class="LearnBoard-pathTitle">Advanced</h2>
+      <p class="LearnBoard-pathDesc">Go deeper: internals, performance, contribution</p>
+    </div>
+    <ul class="LearnBoard-pathItems">
+      <li><a href="/doc/gc-guide">Garbage collector guide</a> <span class="LearnBoard-duration">~40 min</span></li>
+      <li><a href="/blog/pprof">Profiling Go programs</a> <span class="LearnBoard-duration">~30 min</span></li>
+      <li><a href="/ref/spec">Language specification</a></li>
+      <li><a href="/doc/asm">Go assembler guide</a></li>
+      <li><a href="/doc/contribute">Contributing to Go</a></li>
+      <li><a href="/practice/">Go in Practice</a> <span class="LearnBoard-new">New</span></li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ── Background paths ─────────────────────────────────────────── -->
+<div class="LearnBoard-backgrounds">
+  <h2 class="LearnBoard-sectionTitle">Coming from another language?</h2>
+  <div class="LearnBoard-bgGrid">
+    <a class="LearnBoard-bgCard" href="/start/from-python">🐍 From Python</a>
+    <a class="LearnBoard-bgCard" href="/start/from-javascript">🟨 From JavaScript / TypeScript</a>
+    <a class="LearnBoard-bgCard" href="/start/from-java">☕ From Java / C#</a>
+    <a class="LearnBoard-bgCard" href="/start/from-dart">🎯 From Dart / Flutter</a>
+    <a class="LearnBoard-bgCard" href="/doc/effective_go">⚡ From C / C++ / Rust</a>
+  </div>
+</div>
+
+<!-- ── Tutorial catalog ─────────────────────────────────────────── -->
+<div class="LearnBoard-catalog">
+  <div class="LearnBoard-catalogHeader">
+    <h2 class="LearnBoard-sectionTitle">Tutorial catalog</h2>
+    <p class="LearnBoard-catalogSubtitle">Filter by level, topic, or duration</p>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="LearnBoard-filters js-learnFilters" role="search" aria-label="Filter tutorials">
+    <div class="LearnBoard-filterGroup">
+      <span class="LearnBoard-filterLabel">Level</span>
+      <button class="LearnBoard-filterBtn js-learnFilter LearnBoard-filterBtn--active" data-filter="level" data-value="all">All</button>
+      <button class="LearnBoard-filterBtn js-learnFilter" data-filter="level" data-value="beginner">Beginner</button>
+      <button class="LearnBoard-filterBtn js-learnFilter" data-filter="level" data-value="intermediate">Intermediate</button>
+      <button class="LearnBoard-filterBtn js-learnFilter" data-filter="level" data-value="advanced">Advanced</button>
+    </div>
+    <div class="LearnBoard-filterGroup">
+      <span class="LearnBoard-filterLabel">Topic</span>
+      <button class="LearnBoard-filterBtn js-learnFilter LearnBoard-filterBtn--active" data-filter="tag" data-value="all">All</button>
+      <button class="LearnBoard-filterBtn js-learnFilter" data-filter="tag" data-value="basics">Basics</button>
+      <button class="LearnBoard-filterBtn js-learnFilter" data-filter="tag" data-value="web">Web</button>
+      <button class="LearnBoard-filterBtn js-learnFilter" data-filter="tag" data-value="testing">Testing</button>
+      <button class="LearnBoard-filterBtn js-learnFilter" data-filter="tag" data-value="performance">Performance</button>
+      <button class="LearnBoard-filterBtn js-learnFilter" data-filter="tag" data-value="cli">CLI</button>
+      <button class="LearnBoard-filterBtn js-learnFilter" data-filter="tag" data-value="database">Database</button>
+      <button class="LearnBoard-filterBtn js-learnFilter" data-filter="tag" data-value="generics">Generics</button>
+    </div>
+  </div>
+
+  <!-- Tutorial cards — data-level and data-tags drive JS filter -->
+  <ul class="LearnBoard-catalogList js-learnCatalog">
+
+    {{range (data "tutorials.yaml")}}
+    <li class="LearnBoard-catalogItem js-learnItem"
+        data-level="{{.level}}"
+        data-tags="{{range .tags}}{{.}} {{end}}">
+      <a class="LearnBoard-catalogCard" href="{{.url}}">
+        <div class="LearnBoard-catalogMeta">
+          {{if .level}}
+          <span class="LearnBoard-catalogLevel LearnBoard-catalogLevel--{{.level}}">{{.level}}</span>
+          {{end}}
+          {{if .duration_minutes}}
+          <span class="LearnBoard-catalogDuration">{{.duration_minutes}} min</span>
+          {{end}}
+        </div>
+        <h3 class="LearnBoard-catalogTitle">{{.title}}</h3>
+        <p class="LearnBoard-catalogDesc">{{.content}}</p>
+        {{if .tags}}
+        <div class="LearnBoard-catalogTags">
+          {{range .tags}}<span class="LearnBoard-catalogTag">{{.}}</span>{{end}}
+        </div>
+        {{end}}
+      </a>
+    </li>
+    {{end}}
+
+    {{range (data "courses.yaml")}}
+    <li class="LearnBoard-catalogItem js-learnItem"
+        data-level="{{.level}}"
+        data-tags="{{range .tags}}{{.}} {{end}}">
+      <a class="LearnBoard-catalogCard" href="{{.url}}">
+        <div class="LearnBoard-catalogMeta">
+          {{if .level}}
+          <span class="LearnBoard-catalogLevel LearnBoard-catalogLevel--{{.level}}">{{.level}}</span>
+          {{end}}
+          {{if .duration_minutes}}
+          <span class="LearnBoard-catalogDuration">{{.duration_minutes}} min</span>
+          {{end}}
+        </div>
+        <h3 class="LearnBoard-catalogTitle">{{.title}}</h3>
+        <p class="LearnBoard-catalogDesc">{{.content}}</p>
+        {{if .tags}}
+        <div class="LearnBoard-catalogTags">
+          {{range .tags}}<span class="LearnBoard-catalogTag">{{.}}</span>{{end}}
+        </div>
+        {{end}}
+      </a>
+    </li>
+    {{end}}
+
+  </ul>
+
+  <div class="LearnBoard-catalogEmpty js-learnEmpty" hidden>
+    <p>No tutorials match those filters. <button class="LearnBoard-resetBtn js-learnReset">Clear filters</button></p>
+  </div>
+</div>
+
+<!-- ── Books ─────────────────────────────────────────────────────── -->
+<div class="LearnBoard-books">
+  <h2 class="LearnBoard-sectionTitle">Books</h2>
+  <div class="LearnBoard-bookGrid">
+    {{range first 5 (data "books.yaml")}}
+    <a class="LearnBoard-bookCard" href="{{.url}}">
+      {{if .thumbnail}}
+      <img class="LearnBoard-bookCover" src="{{.thumbnail}}" alt="{{.title}} cover" loading="lazy">
+      {{end}}
+      <div class="LearnBoard-bookInfo">
+        <span class="LearnBoard-bookEyebrow">{{.eyebrow}}</span>
+        <h3 class="LearnBoard-bookTitle">{{.title}}</h3>
+        <p class="LearnBoard-bookAuthor">{{.description}}</p>
+      </div>
+    </a>
+    {{end}}
+  </div>
+</div>
+
+</div>
+
+<script src="/js/learn-filter.js"></script>

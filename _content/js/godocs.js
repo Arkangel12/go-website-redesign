@@ -2,377 +2,308 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-/* A little code to ease navigation of these documents.
- *
- * On window load we:
- *  + Generate a table of contents (generateTOC)
- *  + Bind foldable sections (bindToggles)
- *  + Bind links to foldable sections (bindToggleLinks)
- */
-
-(function() {
+// Rewritten in vanilla JS — no jQuery dependency.
+(function () {
   'use strict';
 
+  // ── Mobile menu toggle ──────────────────────────────────────────
   var headerEl = document.querySelector('.js-header');
   var menuButtonEl = document.querySelector('.js-golangorg-headerMenuButton');
 
-  menuButtonEl?.addEventListener('click', function(e) {
-    e.preventDefault();
-    headerEl.classList.toggle('is-active');
-    menuButtonEl.setAttribute(
-      'aria-expanded',
-      headerEl.classList.contains('is-active')
-    );
-  });
-
-  /* Generates a table of contents: looks for h2 and h3 elements and generates
-   * links. "Decorates" the element with id=="nav" with this table of contents.
-   */
-  function generateTOC() {
-    if ($('#manual-nav').length > 0) {
-      return;
-    }
-
-    var nav = $('#nav');
-    if (nav.length === 0) {
-      return;
-    }
-
-    var toc_items = [];
-    $(nav)
-      .nextAll('h2, h3')
-      /* Headings may be nested within div.markdown. */
-      .add($(nav).nextAll('div.markdown').find('h2, h3'))
-      .each(function() {
-        var node = this;
-        if (node.id == '') node.id = 'tmp_' + toc_items.length;
-        var link = $('<a/>')
-          .attr('href', '#' + node.id)
-          .text($(node).text());
-        var item;
-        if ($(node).is('h2')) {
-          item = $('<dt/>');
-        } else {
-          // h3
-          item = $('<dd class="indent"/>');
-        }
-        item.append(link);
-        toc_items.push(item);
-      });
-    if (toc_items.length <= 1) {
-      return;
-    }
-    var dl1 = $('<dl/>');
-    var dl2 = $('<dl/>');
-
-    var split_index = toc_items.length / 2 + 1;
-    if (split_index < 8) {
-      split_index = toc_items.length;
-    }
-    for (var i = 0; i < split_index; i++) {
-      dl1.append(toc_items[i]);
-    }
-    // Do not start the 2nd column with indented subheadings, which can be
-    // visually confusing.
-    for (; i < toc_items.length && toc_items[i].hasClass("indent"); i++) {
-      dl1.append(toc_items[i]);
-    }
-    for (; /* keep using i */ i < toc_items.length; i++) {
-      dl2.append(toc_items[i]);
-    }
-
-    var tocTable = $('<table class="unruled"/>').appendTo(nav);
-    var tocBody = $('<tbody/>').appendTo(tocTable);
-    var tocHeader = $('<tr/>').appendTo(tocBody);
-    $('<th colspan="2">Table of Contents</th>').appendTo(tocHeader);
-
-    var tocRow = $('<tr/>').appendTo(tocBody);
-
-    // 1st column
-    $('<td class="first"/>')
-      .appendTo(tocRow)
-      .append(dl1);
-    // 2nd column
-    $('<td/>')
-      .appendTo(tocRow)
-      .append(dl2);
+  if (menuButtonEl) {
+    menuButtonEl.addEventListener('click', function (e) {
+      e.preventDefault();
+      headerEl.classList.toggle('is-active');
+      menuButtonEl.setAttribute(
+        'aria-expanded',
+        String(headerEl.classList.contains('is-active'))
+      );
+    });
   }
 
-  function bindToggle(el) {
-    $('.toggleButton', el).click(function() {
-      if ($(this).closest('.toggle, .toggleVisible')[0] != el) {
-        // Only trigger the closest toggle header.
-        return;
-      }
+  // ── Table of Contents ───────────────────────────────────────────
+  // Populates #nav with a vertical ToC from h2/h3 elements that
+  // follow it in the DOM. For doc pages the ToC container sits in
+  // the right column (.DocLayout-toc) and gets sticky behaviour
+  // from CSS; for other pages it stays in the content flow.
+  function generateTOC() {
+    if (document.getElementById('manual-nav')) return;
 
-      if ($(el).is('.toggle')) {
-        $(el)
-          .addClass('toggleVisible')
-          .removeClass('toggle');
-      } else {
-        $(el)
-          .addClass('toggle')
-          .removeClass('toggleVisible');
+    var nav = document.getElementById('nav');
+    if (!nav) return;
+
+    // Collect headings that come after #nav in the article.
+    var article = nav.closest('article') || document.body;
+    var allHeadings = article.querySelectorAll('h2, h3, div.markdown h2, div.markdown h3');
+    var headings = [];
+    allHeadings.forEach(function (h) {
+      // Only include headings that are after #nav in document order.
+      if (nav.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING) {
+        headings.push(h);
       }
+    });
+
+    if (headings.length <= 1) return;
+
+    headings.forEach(function (h, i) {
+      if (!h.id) h.id = 'tmp_' + i;
+    });
+
+    var header = document.createElement('p');
+    header.className = 'TOC-title';
+    header.textContent = 'Contents';
+    nav.appendChild(header);
+
+    var dl = document.createElement('dl');
+    headings.forEach(function (h) {
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = h.textContent.replace(/¶$/, '').trim();
+
+      var item = document.createElement(h.tagName === 'H2' ? 'dt' : 'dd');
+      if (h.tagName === 'H3') item.className = 'indent';
+      item.appendChild(a);
+      dl.appendChild(item);
+    });
+    nav.appendChild(dl);
+
+    // Highlight active section on scroll.
+    var tocLinks = nav.querySelectorAll('a');
+    if ('IntersectionObserver' in window) {
+      var active = null;
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var id = entry.target.id;
+            tocLinks.forEach(function (a) {
+              var isCurrent = a.getAttribute('href') === '#' + id;
+              a.classList.toggle('TOC-active', isCurrent);
+              if (isCurrent) active = a;
+            });
+          }
+        });
+      }, { rootMargin: '-20% 0px -60% 0px' });
+
+      headings.forEach(function (h) { observer.observe(h); });
+    }
+  }
+
+  // ── Toggle sections (collapsible examples) ──────────────────────
+  function bindToggle(el) {
+    var btn = el.querySelector('.toggleButton');
+    if (!btn) return;
+    btn.addEventListener('click', function (e) {
+      if (e.target.closest('.toggle, .toggleVisible') !== el) return;
+      el.classList.toggle('toggle');
+      el.classList.toggle('toggleVisible');
     });
   }
 
   function bindToggles(selector) {
-    $(selector).each(function(i, el) {
-      bindToggle(el);
-    });
+    document.querySelectorAll(selector).forEach(bindToggle);
   }
 
   function bindToggleLink(el, prefix) {
-    $(el).click(function() {
-      var href = $(el).attr('href');
+    el.addEventListener('click', function () {
+      var href = el.getAttribute('href') || '';
       var i = href.indexOf('#' + prefix);
-      if (i < 0) {
-        return;
-      }
+      if (i < 0) return;
       var id = '#' + prefix + href.slice(i + 1 + prefix.length);
-      if ($(id).is('.toggle')) {
-        $(id)
-          .find('.toggleButton')
-          .first()
-          .click();
+      var target = document.querySelector(id);
+      if (target && target.classList.contains('toggle')) {
+        var btn = target.querySelector('.toggleButton');
+        if (btn) btn.click();
       }
     });
   }
+
   function bindToggleLinks(selector, prefix) {
-    $(selector).each(function(i, el) {
+    document.querySelectorAll(selector).forEach(function (el) {
       bindToggleLink(el, prefix);
     });
   }
 
+  // ── Inline playground (existing .play divs in docs) ─────────────
   function setupInlinePlayground() {
-    'use strict';
-    // Set up playground when each element is toggled.
-    $('div.play').each(function(i, el) {
-      // Set up playground for this example.
-      var setup = function() {
-        var code = $('.code', el);
+    document.querySelectorAll('div.play').forEach(function (el) {
+      var code = el.querySelector('.code');
+      var outputEl = el.querySelector('.output');
+      var runEl = el.querySelector('.run');
+      var fmtEl = el.querySelector('.fmt');
+      var shareEl = el.querySelector('.share');
+
+      var setup = function () {
+        if (typeof playground === 'undefined') return;
         playground({
           codeEl: code,
-          outputEl: $('.output', el),
-          runEl: $('.run', el),
-          fmtEl: $('.fmt', el),
-          shareEl: $('.share', el),
+          outputEl: outputEl,
+          runEl: runEl,
+          fmtEl: fmtEl,
+          shareEl: shareEl,
           shareRedirect: '//go.dev/play/p/',
         });
 
-        // Make the code textarea resize to fit content.
-        var resize = function() {
-          code.height(0);
-          var h = code[0].scrollHeight;
-          code.height(h + 20); // minimize bouncing.
-          code.closest('.input').height(h);
+        var resize = function () {
+          code.style.height = '0';
+          code.style.height = (code.scrollHeight + 20) + 'px';
+          code.closest('.input').style.height = code.style.height;
         };
-        code.on('keydown', resize);
-        code.on('keyup', resize);
-        code.keyup(); // resize now.
+        code.addEventListener('keydown', resize);
+        code.addEventListener('keyup', resize);
+        resize();
       };
 
-      // If example already visible, set up playground now.
-      if ($(el).is(':visible')) {
+      if (el.style.display !== 'none' && el.offsetParent !== null) {
         setup();
         return;
       }
 
-      // Otherwise, set up playground when example is expanded.
       var built = false;
-      $(el)
-        .closest('.toggle')
-        .click(function() {
-          // Only set up once.
-          if (!built) {
-            setup();
-            built = true;
-          }
+      var toggle = el.closest('.toggle');
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          if (!built) { setup(); built = true; }
         });
+      }
     });
   }
 
-  // fixFocus tries to put focus to #page so that keyboard navigation works.
-  function fixFocus() {
-    var page = $('#page');
-    var topbar = $('div#topbar');
-    page.css('outline', 0); // disable outline when focused
-    page.attr('tabindex', -1); // and set tabindex so that it is focusable
-    $(window)
-      .resize(function(evt) {
-        // only focus page when the topbar is at fixed position (that is, it's in
-        // front of page, and keyboard event will go to the former by default.)
-        // by focusing page, keyboard event will go to page so that up/down arrow,
-        // space, etc. will work as expected.
-        if (topbar.css('position') == 'fixed') page.focus();
-      })
-      .resize();
+  // ── Permalink anchors (¶) ────────────────────────────────────────
+  function addPermalinks() {
+    // pkg.go.dev-style anchors for #page.container headings
+    var container = document.querySelector('#page .container');
+    if (container) {
+      container.querySelectorAll('h2[id], h3[id]').forEach(function (h) {
+        if (h.querySelector('.permalink')) return;
+        var a = document.createElement('a');
+        a.className = 'permalink';
+        a.href = '#' + h.id;
+        a.innerHTML = '&#xb6;';
+        h.appendChild(document.createTextNode(' '));
+        h.appendChild(a);
+      });
+      container.querySelectorAll('dl[id]').forEach(function (dl) {
+        var dt = dl.querySelector(':scope > dt');
+        if (!dt || dt.querySelector('.permalink')) return;
+        var a = document.createElement('a');
+        a.className = 'permalink';
+        a.href = '#' + dl.id;
+        a.innerHTML = '&#xb6;';
+        dt.appendChild(document.createTextNode(' '));
+        dt.appendChild(a);
+      });
+    }
+
+    // Article heading anchors (¶), added after generateTOC so the symbol
+    // isn't captured in ToC text.
+    document.querySelectorAll('.Article h1[id], .Article h2[id], .Article h3[id], .Article h4[id]')
+      .forEach(function (el) {
+        el.insertAdjacentHTML('beforeend',
+          '<a href="#' + el.id + '" class="Article-idLink" aria-label="Go to ' + el.id + '">¶</a>');
+      });
   }
 
-  function toggleHash() {
-    var id = window.location.hash.substring(1);
-    // Open all of the toggles for a particular hash.
-    var els = $(
-      document.getElementById(id),
-      $('a[name]').filter(function() {
-        return $(this).attr('name') == id;
-      })
-    );
-
-    while (els.length) {
-      for (var i = 0; i < els.length; i++) {
-        var el = $(els[i]);
-        if (el.is('.toggle')) {
-          el.find('.toggleButton')
-            .first()
-            .click();
+  // ── Expand/collapse all examples ─────────────────────────────────
+  var expandAllEl = document.querySelector('.js-expandAll');
+  if (expandAllEl) {
+    expandAllEl.addEventListener('click', function () {
+      var collapsed = expandAllEl.classList.contains('collapsed');
+      var targetClass = collapsed ? 'toggle' : 'toggleVisible';
+      document.querySelectorAll("[id^='example_']").forEach(function (el) {
+        if (el.classList.contains(targetClass)) {
+          var btn = el.querySelector('.toggleButton');
+          if (btn) btn.click();
         }
+      });
+      expandAllEl.textContent = collapsed ? '(Collapse All)' : '(Expand All)';
+      expandAllEl.classList.toggle('collapsed');
+    });
+  }
+
+  // ── Open a toggle section when the URL hash targets it ──────────
+  function toggleHash() {
+    var id = window.location.hash.slice(1);
+    if (!id) return;
+    var el = document.getElementById(id) ||
+      document.querySelector('a[name="' + id + '"]');
+    while (el) {
+      if (el.classList.contains('toggle')) {
+        var btn = el.querySelector('.toggleButton');
+        if (btn) btn.click();
       }
-      els = el.parent();
+      el = el.parentElement;
     }
   }
 
+  // ── Install page personalisation ─────────────────────────────────
   function personalizeInstallInstructions() {
     var prefix = '?download=';
     var s = window.location.search;
-    if (s.indexOf(prefix) != 0) {
-      // No 'download' query string; detect "test" instructions from User Agent.
-      if (navigator.platform.indexOf('Win') != -1) {
-        $('.testUnix').hide();
-        $('.testWindows').show();
-      } else {
-        $('.testUnix').show();
-        $('.testWindows').hide();
-      }
+    if (s.indexOf(prefix) !== 0) {
+      var isWin = navigator.platform.indexOf('Win') !== -1;
+      document.querySelectorAll('.testUnix').forEach(function (el) {
+        el.style.display = isWin ? 'none' : '';
+      });
+      document.querySelectorAll('.testWindows').forEach(function (el) {
+        el.style.display = isWin ? '' : 'none';
+      });
       return;
     }
 
-    var filename = s.substr(prefix.length);
-    var filenameRE = /^go1\.\d+(\.\d+)?([a-z0-9]+)?\.([a-z0-9]+)(-[a-z0-9]+)?(-osx10\.[68])?\.([a-z.]+)$/;
-    var m = filenameRE.exec(filename);
-    if (!m) {
-      // Can't interpret file name; bail.
-      return;
-    }
-    $('.downloadFilename').text(filename);
-    $('.hideFromDownload').hide();
+    var filename = s.slice(prefix.length);
+    var m = /^go1\.\d+(\.\d+)?([a-z0-9]+)?\.([a-z0-9]+)(-[a-z0-9]+)?(-osx10\.[68])?\.([a-z.]+)$/.exec(filename);
+    if (!m) return;
 
-    var os = m[3];
-    var ext = m[6];
-    if (ext != 'tar.gz') {
-      $('#tarballInstructions').hide();
-    }
-    if (os != 'darwin' || ext != 'pkg') {
-      $('#darwinPackageInstructions').hide();
-    }
-    if (os != 'windows') {
-      $('#windowsInstructions').hide();
-      $('.testUnix').show();
-      $('.testWindows').hide();
+    document.querySelectorAll('.downloadFilename').forEach(function (el) {
+      el.textContent = filename;
+    });
+    document.querySelectorAll('.hideFromDownload').forEach(function (el) {
+      el.style.display = 'none';
+    });
+
+    var os = m[3], ext = m[6];
+    if (ext !== 'tar.gz') hide('#tarballInstructions');
+    if (os !== 'darwin' || ext !== 'pkg') hide('#darwinPackageInstructions');
+    if (os !== 'windows') {
+      hide('#windowsInstructions');
+      show('.testUnix'); hide('.testWindows');
     } else {
-      if (ext != 'msi') {
-        $('#windowsInstallerInstructions').hide();
-      }
-      if (ext != 'zip') {
-        $('#windowsZipInstructions').hide();
-      }
-      $('.testUnix').hide();
-      $('.testWindows').show();
+      if (ext !== 'msi') hide('#windowsInstallerInstructions');
+      if (ext !== 'zip') hide('#windowsZipInstructions');
+      hide('.testUnix'); show('.testWindows');
     }
 
-    var download = '/dl/' + filename;
+    var nav = document.getElementById('nav');
+    var p = document.createElement('p');
+    p.className = 'downloading';
+    p.innerHTML = 'Your download should begin shortly. If it does not, click <a href="/dl/' + filename + '">this link</a>.';
+    if (nav && nav.parentNode) nav.parentNode.insertBefore(p, nav.nextSibling);
 
-    var message = $(
-      '<p class="downloading">' +
-        'Your download should begin shortly. ' +
-        'If it does not, click <a>this link</a>.</p>'
-    );
-    message.find('a').attr('href', download);
-    message.insertAfter('#nav');
-
-    window.location = download;
+    window.location = '/dl/' + filename;
   }
 
+  function hide(sel) {
+    document.querySelectorAll(sel).forEach(function (el) { el.style.display = 'none'; });
+  }
+  function show(sel) {
+    document.querySelectorAll(sel).forEach(function (el) { el.style.display = ''; });
+  }
+
+  // ── Go version tag ───────────────────────────────────────────────
   function updateVersionTags() {
     var v = window.goVersion;
-    if (/^go[0-9.]+$/.test(v)) {
-      $('.versionTag')
-        .empty()
-        .text(v);
-      $('.whereTag').hide();
-    }
-  }
-
-  function addPermalinks() {
-    function addPermalink(source, parent) {
-      var id = source.attr('id');
-      if (id == '' || id.indexOf('tmp_') === 0) {
-        // Auto-generated permalink.
-        return;
-      }
-      if (parent.find('> .permalink').length) {
-        // Already attached.
-        return;
-      }
-      parent
-        .append(' ')
-        .append($("<a class='permalink'>&#xb6;</a>").attr('href', '#' + id));
-    }
-
-    $('#page .container')
-      .find('h2[id], h3[id]')
-      .each(function() {
-        var el = $(this);
-        addPermalink(el, el);
+    if (v && /^go[0-9.]+$/.test(v)) {
+      document.querySelectorAll('.versionTag').forEach(function (el) {
+        el.textContent = v;
       });
-
-    $('#page .container')
-      .find('dl[id]')
-      .each(function() {
-        var el = $(this);
-        // Add the anchor to the "dt" element.
-        addPermalink(el, el.find('> dt').first());
-      });
-
-    // Add anchor links to article headers.
-    //
-    // This happens after generateTOC, so that the '¶' symbol
-    // won't be included in TOC items. See go.dev/issue/69816.
-    var headers = document.querySelectorAll('.Article h1[id], .Article h2[id], .Article h3[id], .Article h4[id]')
-    if (headers) {
-      headers.forEach(element => {
-        element.insertAdjacentHTML('beforeend', `<a href="#${element.id}" class="Article-idLink" aria-label="Go to ${element.id}">¶</a>`);
+      document.querySelectorAll('.whereTag').forEach(function (el) {
+        el.style.display = 'none';
       });
     }
   }
 
-  $('.js-expandAll').click(function() {
-    if ($(this).hasClass('collapsed')) {
-      toggleExamples('toggle');
-      $(this).text('(Collapse All)');
-    } else {
-      toggleExamples('toggleVisible');
-      $(this).text('(Expand All)');
-    }
-    $(this).toggleClass('collapsed');
-  });
-
-  function toggleExamples(className) {
-    // We need to explicitly iterate through divs starting with "example_"
-    // to avoid toggling Overview and Index collapsibles.
-    $("[id^='example_']").each(function() {
-      // Check for state and click it only if required.
-      if ($(this).hasClass(className)) {
-        $(this)
-          .find('.toggleButton')
-          .first()
-          .click();
-      }
-    });
-  }
-
-  $(document).ready(function() {
+  // ── Boot ─────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function () {
     generateTOC();
     addPermalinks();
     bindToggles('.toggle');
@@ -382,15 +313,13 @@
     bindToggleLinks('.examplesLink', '');
     bindToggleLinks('.indexLink', '');
     setupInlinePlayground();
-    fixFocus();
     toggleHash();
     personalizeInstallInstructions();
     updateVersionTags();
 
-    // site.js defines window.initFuncs in the global scope, and play.js and
-    // codewalk.js push their on-page-ready functions to the list.
-    // We execute those functions here, to avoid loading jQuery until the page
-    // content is loaded.
-    for (var i = 0; i < window.initFuncs.length; i++) window.initFuncs[i]();
+    // Backward-compat: execute functions pushed by play.js / codewalk.js.
+    if (window.initFuncs) {
+      window.initFuncs.forEach(function (fn) { fn(); });
+    }
   });
 })();

@@ -4,6 +4,9 @@
 <head>
 <!-- Google Tag Manager -->
 <link rel="preconnect" href="https://www.googletagmanager.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&family=Fragment+Mono&display=swap" rel="stylesheet">
 <script >(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -69,7 +72,7 @@
         <ul class="Header-menu">
           {{- $currentPage := .}}
           {{- range $menus.main}}
-          <li class="Header-menuItem {{if strings.HasPrefix $currentPage.URL .url}} Header-menuItem--active{{end}}">
+          <li class="Header-menuItem {{if strings.HasPrefix $currentPage.URL .url}} Header-menuItem--active{{end}}{{if .highlight}} Header-menuItem--start{{end}}">
             <a href="{{if .children}}#{{else}}{{.url}}{{end}}" {{if .children}} class="js-desktop-menu-hover"{{end}} aria-label={{.name}} aria-describedby="dropdown-description">
               {{.name}} {{if .children}}<i class="material-icons" aria-hidden="true">arrow_drop_down</i>{{end}}
             </a>
@@ -262,7 +265,6 @@
       </div>
     </div>
   </div>
-  <script src="/js/jquery.js"></script>
   <script src="/js/carousels.js"></script>
   <script src="/js/searchBox.js"></script>
   <script src="/js/misc.js"></script>
@@ -270,6 +272,10 @@
   <script src="/js/playground.js"></script>
   <script src="/js/godocs.js"></script>
   <script async src="/js/copypaste.js"></script>
+  <script async src="/js/hero-playground.js"></script>
+  <script async src="/js/doc-nav.js"></script>
+  <script async src="/js/run-buttons.js"></script>
+  <script async src="/js/web-vitals.js"></script>
 </footer>
 <section class="Cookie-notice js-cookieNotice">
   <div>go.dev uses cookies from Google to deliver and enhance the quality of its services and to
@@ -430,65 +436,78 @@
 {{define "doclayout"}}
 {{/* used from various subdirectory default.tmpl */}}
 <article class="Doc Article">
-{{if .sidebar }}
-<div class="Article-columns">
-<div class="Article-content">
-{{end}}
 
-{{if .breadcrumb}}
-  {{ breadcrumbs . }}
-{{end}}
+{{if strings.HasPrefix .URL "/doc/"}}
+{{/* 3-column DocLayout: left nav | content | right ToC */}}
+<div class="DocLayout">
+  <aside class="DocLayout-sidebar js-docSidebar" aria-label="Documentation navigation">
+    <div class="DocLayout-sidebarSearch">
+      <input type="search" class="DocLayout-searchInput js-docSearch"
+             placeholder="Filter docs…" aria-label="Filter documentation">
+    </div>
+    <nav class="DocLayout-nav js-docNav" aria-label="Documentation sections"></nav>
+  </aside>
+  <div class="DocLayout-content">
+    <button class="DocLayout-mobileToggle js-docMobileToggle" aria-label="Open documentation navigation">
+      ☰ Docs nav
+    </button>
+    {{if .breadcrumb}}{{ breadcrumbs . }}{{end}}
+    {{if .deprecated}}{{ deprecationbanner . }}{{end}}
+    {{if .title}}
+    <h1>{{if strings.HasPrefix .URL "/wiki/"}}Go Wiki: {{end}}{{.title}}</h1>
+    {{else if eq .layout "error"}}<h1>Error</h1>
+    {{else if eq .layout "dir"}}<h1>Directory {{breadcrumb .URL}}</h1>
+    {{else if and (eq .layout "texthtml") (strings.HasSuffix .URL ".go")}}<h1>Source file {{breadcrumb .URL}}</h1>
+    {{else if eq .layout "texthtml"}}<h1>Text file {{breadcrumb .URL}}</h1>
+    {{end}}
+    {{with .subtitle}}<h2 class="subtitle">{{.}}</h2>{{end}}
+    {{.Content}}
+  </div>
+  <aside class="DocLayout-toc" aria-label="On this page">
+    {{if not .hidetoc}}<div id="nav" class="TOC TOC--right"></div>{{end}}
+    {{if eq .sidebar "faq"}}{{ faqsidebar .}}{{end}}
+    {{if eq .sidebar "bug"}}{{ bugsidebar .}}{{end}}
+  </aside>
+</div>
 
+{{else}}
+{{/* Non-/doc/ pages: existing layout */}}
+{{if .sidebar}}<div class="Article-columns"><div class="Article-content">{{end}}
+{{if .breadcrumb}}{{ breadcrumbs . }}{{end}}
 {{if .title}}
 <h1>{{if strings.HasPrefix .URL "/wiki/"}}Go Wiki: {{end}}{{.title}}</h1>
-{{else if eq .layout "error"}}
-<h1>Error</h1>
-{{else if eq .layout "dir"}}
-<h1>Directory {{breadcrumb .URL}}</h1>
-{{else if and (eq .layout "texthtml") (strings.HasSuffix .URL ".go")}}
-<h1>Source file {{breadcrumb .URL}}</h1>
-{{else if eq .layout "texthtml"}}
-<h1>Text file {{breadcrumb .URL}}</h1>
+{{else if eq .layout "error"}}<h1>Error</h1>
+{{else if eq .layout "dir"}}<h1>Directory {{breadcrumb .URL}}</h1>
+{{else if and (eq .layout "texthtml") (strings.HasSuffix .URL ".go")}}<h1>Source file {{breadcrumb .URL}}</h1>
+{{else if eq .layout "texthtml"}}<h1>Text file {{breadcrumb .URL}}</h1>
 {{end}}
-
-{{with .subtitle}}
-<h2 class="subtitle">{{.}}</h2>
-{{end}}
-
-{{/* The Table of Contents is automatically inserted in this <div>.
-     Do not delete this <div>. */}}
-{{if not .hidetoc}}
-<div id="nav" class="TOC"></div>
-{{end}}
-
-
+{{with .subtitle}}<h2 class="subtitle">{{.}}</h2>{{end}}
+{{if not .hidetoc}}<div id="nav" class="TOC"></div>{{end}}
 {{.Content}}
-
-{{if .sidebar }}
-</div>
-{{if eq .sidebar "faq"}}
-{{ faqsidebar .}}
-{{else if eq .sidebar "bug"}}
-{{ bugsidebar .}}
-{{end}}
-</div>
+{{if .sidebar}}</div>
+{{if eq .sidebar "faq"}}{{ faqsidebar .}}{{else if eq .sidebar "bug"}}{{ bugsidebar .}}{{end}}
+</div>{{end}}
 {{end}}
 
 {{if strings.HasPrefix .URL "/wiki/"}}
-<hr>
-<p>
-<i>This content is part of the <a href="/wiki/">Go Wiki</a>.</i>
-</p>
+<hr><p><i>This content is part of the <a href="/wiki/">Go Wiki</a>.</i></p>
 {{end}}
 {{if strings.HasPrefix .URL "/gopls/"}}
-<hr>
-<p>
-<i>The source files for this documentation can be found beneath <a href="https://cs.opensource.google/go/x/tools/+/master:gopls/doc/">golang.org/x/tools/gopls/doc</a>.</i>
-</p>
+<hr><p><i>The source files for this documentation can be found beneath <a href="https://cs.opensource.google/go/x/tools/+/master:gopls/doc/">golang.org/x/tools/gopls/doc</a>.</i></p>
 {{end}}
 
 </article>
 
+{{end}}
+
+{{define "deprecationbanner"}}
+<div class="DeprecationBanner" role="alert">
+  <strong>⚠ Deprecated:</strong>
+  This page describes a feature or pattern that is no longer recommended.
+  {{if .deprecation_note}}{{.deprecation_note}}{{else}}
+  See the <a href="/doc/devel/release">release notes</a> for current recommendations.
+  {{end}}
+</div>
 {{end}}
 
 {{define "bugsidebar"}}

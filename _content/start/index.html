@@ -1,0 +1,458 @@
+<!--{
+  "Title": "Get Started with Go"
+}-->
+<!--
+Copyright 2024 The Go Authors. All rights reserved.
+Use of this source code is governed by a BSD-style
+license that can be found in the LICENSE file.
+-->
+
+<div class="Start">
+
+  <!-- ── Progress bar ───────────────────────────────────────────── -->
+  <div class="Start-progressBar" aria-label="Onboarding progress">
+    <div class="Start-progressInner js-startProgressInner"></div>
+  </div>
+
+  <!-- ── Page header ────────────────────────────────────────────── -->
+  <header class="Start-header">
+    <div class="Start-headerInner">
+      <h1 class="Start-title">Get started with Go</h1>
+      <p class="Start-subtitle">Five steps from zero to your first Go program — no experience required.</p>
+      <nav class="Start-stepNav" aria-label="Steps">
+        <button class="Start-stepBtn js-startStepBtn Start-stepBtn--active" data-step="1">1. Try it</button>
+        <button class="Start-stepBtn js-startStepBtn" data-step="2">2. Install</button>
+        <button class="Start-stepBtn js-startStepBtn" data-step="3">3. First program</button>
+        <button class="Start-stepBtn js-startStepBtn" data-step="4">4. Choose a path</button>
+        <button class="Start-stepBtn js-startStepBtn" data-step="5">5. What to build</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ── Step 1: Try Go in your browser ────────────────────────── -->
+  <section class="Start-step js-startStep Start-step--active" data-step="1" id="step-1">
+    <div class="Start-stepInner">
+      <div class="Start-stepContent">
+        <div class="Start-stepBadge">Step 1 of 5</div>
+        <h2>Try Go in your browser</h2>
+        <p>No installation needed. Edit the code below and click <strong>Run</strong> to see Go in action.</p>
+        <p>Go is simple by design. A program is just a <code>main</code> function in a <code>package main</code>. The <code>fmt</code> package handles formatted output — like Python's <code>print</code> or Java's <code>System.out.println</code>.</p>
+      </div>
+      <div class="Start-stepPlayground">
+        <div class="Start-playgroundHeader">
+          <span class="Start-playgroundLabel">Go Playground</span>
+          <a class="Start-playgroundOpen" href="/play/" title="Open in full playground">Open full editor ⤢</a>
+        </div>
+        <textarea class="Start-playgroundCode js-startPlaygroundCode" spellcheck="false" aria-label="Go code editor" rows="10">package main
+
+import (
+	"fmt"
+	"math/rand"
+)
+
+func main() {
+	fmt.Println("Hello, Go!")
+	fmt.Printf("Random number: %d\n", rand.Intn(100))
+	fmt.Println("Edit this code and click Run!")
+}</textarea>
+        <div class="Start-playgroundControls">
+          <button class="Start-playgroundRun js-startPlaygroundRun">▶ Run</button>
+          <span class="Start-playgroundHint">Shift+Enter also runs</span>
+        </div>
+        <pre class="Start-playgroundOutput js-startPlaygroundOutput" hidden></pre>
+      </div>
+    </div>
+    <div class="Start-stepFooter">
+      <button class="Start-nextBtn js-startNextBtn" data-next="2">Continue to Install →</button>
+    </div>
+  </section>
+
+  <!-- ── Step 2: Install Go ─────────────────────────────────────── -->
+  <section class="Start-step js-startStep" data-step="2" id="step-2">
+    <div class="Start-stepInner">
+      <div class="Start-stepContent">
+        <div class="Start-stepBadge">Step 2 of 5</div>
+        <h2>Install Go</h2>
+        <p>Download and install Go on your computer. The installer sets up everything you need.</p>
+
+        <div class="Start-osCards js-startOsCards">
+          <button class="Start-osCard js-startOsCard Start-osCard--active" data-os="mac">
+            <svg class="Start-osIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            <span>macOS</span>
+          </button>
+          <button class="Start-osCard js-startOsCard" data-os="windows">
+            <svg class="Start-osIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V6.75l6-1.32v6.48L3 12m17-9v8.75l-10 .15V5.21L20 3M3 13l6 .09v6.81l-6-1.15V13m17 .25V22l-10-1.91V13.1L20 13.25z"/></svg>
+            <span>Windows</span>
+          </button>
+          <button class="Start-osCard js-startOsCard" data-os="linux">
+            <svg class="Start-osIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.62 8.35c-.34-.27-.48-.67-.33-1.08l.61-1.69c.31-.87-.04-1.83-.83-2.28-.36-.2-.77-.27-1.17-.17-.4.1-.74.35-.95.71L11.26 5c-.22.38-.63.59-1.06.56l-1.79-.14c-.92-.07-1.75.53-1.97 1.43-.1.4-.04.82.17 1.17.21.35.54.61.93.7l1.71.43c.42.1.72.47.72.9v1.78c0 .92.67 1.71 1.58 1.84.4.05.81-.03 1.14-.25.34-.22.57-.55.65-.94l.36-1.77c.09-.43.44-.74.88-.77l1.79-.09c.92-.05 1.67-.77 1.72-1.69.02-.41-.1-.81-.35-1.12a1.8 1.8 0 00-.96-.59l-1.71-.37c-.04 0-.07-.02-.1-.03l-.14-.06c-.01 0-.02-.01-.03-.02-.03-.02-.06-.03-.09-.05M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+            <span>Linux</span>
+          </button>
+        </div>
+
+        <div class="Start-installInstructions js-startInstallMac">
+          <div class="Start-installStep">
+            <span class="Start-installNum">1</span>
+            <div>
+              <p>Download the macOS installer:</p>
+              <div class="Start-downloadBtn">
+                <a class="js-downloadBtn" href="/dl" id="start-download-mac">
+                  Download Go for macOS →
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="Start-installStep">
+            <span class="Start-installNum">2</span>
+            <p>Open the downloaded <code>.pkg</code> file and follow the installer prompts.</p>
+          </div>
+          <div class="Start-installStep">
+            <span class="Start-installNum">3</span>
+            <p>Verify the installation by opening Terminal and running:</p>
+            <div class="CopyPaste">
+              <pre>go version</pre>
+              <button>Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="Start-installInstructions js-startInstallWindows" hidden>
+          <div class="Start-installStep">
+            <span class="Start-installNum">1</span>
+            <div>
+              <p>Download the Windows installer:</p>
+              <div class="Start-downloadBtn">
+                <a class="js-downloadBtn" href="/dl" id="start-download-windows">
+                  Download Go for Windows →
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="Start-installStep">
+            <span class="Start-installNum">2</span>
+            <p>Open the downloaded <code>.msi</code> file and follow the installer prompts.</p>
+          </div>
+          <div class="Start-installStep">
+            <span class="Start-installNum">3</span>
+            <p>Verify the installation by opening Command Prompt and running:</p>
+            <div class="CopyPaste">
+              <pre>go version</pre>
+              <button>Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="Start-installInstructions js-startInstallLinux" hidden>
+          <div class="Start-installStep">
+            <span class="Start-installNum">1</span>
+            <p>Remove any prior Go installation, then extract the archive to <code>/usr/local</code>:</p>
+            <div class="CopyPaste">
+              <pre>rm -rf /usr/local/go && tar -C /usr/local -xzf go*.linux-amd64.tar.gz</pre>
+              <button>Copy</button>
+            </div>
+          </div>
+          <div class="Start-installStep">
+            <span class="Start-installNum">2</span>
+            <p>Add <code>/usr/local/go/bin</code> to your PATH in <code>~/.profile</code> or <code>~/.bashrc</code>:</p>
+            <div class="CopyPaste">
+              <pre>export PATH=$PATH:/usr/local/go/bin</pre>
+              <button>Copy</button>
+            </div>
+          </div>
+          <div class="Start-installStep">
+            <span class="Start-installNum">3</span>
+            <p>Reload your shell config then verify:</p>
+            <div class="CopyPaste">
+              <pre>go version</pre>
+              <button>Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="Start-stepFooter">
+      <button class="Start-prevBtn js-startPrevBtn" data-prev="1">← Back</button>
+      <button class="Start-nextBtn js-startNextBtn" data-next="3">Continue to First Program →</button>
+    </div>
+  </section>
+
+  <!-- ── Step 3: Your first program ────────────────────────────── -->
+  <section class="Start-step js-startStep" data-step="3" id="step-3">
+    <div class="Start-stepInner">
+      <div class="Start-stepContent">
+        <div class="Start-stepBadge">Step 3 of 5</div>
+        <h2>Your first Go program</h2>
+        <p>Let's write a real program on your machine. This takes about 5 minutes.</p>
+
+        <ol class="Start-tutorial">
+          <li class="Start-tutorialStep">
+            <h3>Create a module</h3>
+            <p>A Go project is called a <em>module</em>. Create a directory and initialize it:</p>
+            <div class="CopyPaste">
+              <pre>mkdir hello &amp;&amp; cd hello &amp;&amp; go mod init example/hello</pre>
+              <button>Copy</button>
+            </div>
+          </li>
+          <li class="Start-tutorialStep">
+            <h3>Write the code</h3>
+            <p>Create a file called <code>hello.go</code> with this content — run it in the playground to preview:</p>
+            <div class="Start-stepPlayground">
+              <div class="Start-playgroundHeader">
+                <span class="Start-playgroundLabel">hello.go</span>
+              </div>
+              <textarea class="Start-playgroundCode js-startPlaygroundCode" spellcheck="false" aria-label="Go code editor" rows="12">package main
+
+import "fmt"
+
+func greet(name string) string {
+	return fmt.Sprintf("Hello, %s! Welcome to Go.", name)
+}
+
+func main() {
+	message := greet("Gopher")
+	fmt.Println(message)
+}</textarea>
+              <div class="Start-playgroundControls">
+                <button class="Start-playgroundRun js-startPlaygroundRun">▶ Run</button>
+              </div>
+              <pre class="Start-playgroundOutput js-startPlaygroundOutput" hidden></pre>
+            </div>
+          </li>
+          <li class="Start-tutorialStep">
+            <h3>Run it</h3>
+            <p>In your terminal, inside the <code>hello</code> directory:</p>
+            <div class="CopyPaste">
+              <pre>go run hello.go</pre>
+              <button>Copy</button>
+            </div>
+            <p>You should see: <code>Hello, Gopher! Welcome to Go.</code></p>
+          </li>
+          <li class="Start-tutorialStep">
+            <h3>Build an executable</h3>
+            <p>Compile to a standalone binary with <code>go build</code>:</p>
+            <div class="CopyPaste">
+              <pre>go build -o hello &amp;&amp; ./hello</pre>
+              <button>Copy</button>
+            </div>
+            <p>Go compiles to a single, self-contained binary — no runtime to install.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+    <div class="Start-stepFooter">
+      <button class="Start-prevBtn js-startPrevBtn" data-prev="2">← Back</button>
+      <button class="Start-nextBtn js-startNextBtn" data-next="4">Continue to Choose a Path →</button>
+    </div>
+  </section>
+
+  <!-- ── Step 4: Choose your path ──────────────────────────────── -->
+  <section class="Start-step js-startStep" data-step="4" id="step-4">
+    <div class="Start-stepInner Start-stepInner--wide">
+      <div class="Start-stepBadge">Step 4 of 5</div>
+      <h2>Choose your learning path</h2>
+      <p>Where are you coming from? We'll tailor what you read next.</p>
+      <div class="Start-pathGrid">
+        <a class="Start-pathCard" href="/start/from-python">
+          <div class="Start-pathIcon">🐍</div>
+          <h3>I know Python</h3>
+          <p>See Go's syntax side-by-side with Python. Covers types, loops, functions, and concurrency.</p>
+          <span class="Start-pathLink">Go from Python →</span>
+        </a>
+        <a class="Start-pathCard" href="/start/from-javascript">
+          <div class="Start-pathIcon">🟨</div>
+          <h3>I know JavaScript / TypeScript</h3>
+          <p>Understand Go's static types, goroutines vs async/await, and the module system.</p>
+          <span class="Start-pathLink">Go from JS/TS →</span>
+        </a>
+        <a class="Start-pathCard" href="/start/from-java">
+          <div class="Start-pathIcon">☕</div>
+          <h3>I know Java / C#</h3>
+          <p>Explore Go's interfaces, no-inheritance model, and how it replaces boilerplate with simplicity.</p>
+          <span class="Start-pathLink">Go from Java →</span>
+        </a>
+        <a class="Start-pathCard" href="/start/from-dart">
+          <div class="Start-pathIcon">🎯</div>
+          <h3>I know Dart / Flutter</h3>
+          <p>Understand how Go's goroutines compare to Dart's async/await and isolates, and how structs replace classes.</p>
+          <span class="Start-pathLink">Go from Dart →</span>
+        </a>
+        <a class="Start-pathCard" href="/tour/">
+          <div class="Start-pathIcon">🔰</div>
+          <h3>I'm new to programming</h3>
+          <p>Take the official interactive Go Tour — no prior experience needed.</p>
+          <span class="Start-pathLink">Start the Tour →</span>
+        </a>
+        <a class="Start-pathCard" href="/doc/effective_go">
+          <div class="Start-pathIcon">⚡</div>
+          <h3>I know systems languages (C/C++/Rust)</h3>
+          <p>Jump straight to Effective Go for idiomatic patterns, memory model, and concurrency primitives.</p>
+          <span class="Start-pathLink">Effective Go →</span>
+        </a>
+        <a class="Start-pathCard" href="/learn/">
+          <div class="Start-pathIcon">📚</div>
+          <h3>Show me everything</h3>
+          <p>Browse the full learning catalog — tutorials, courses, and guided paths.</p>
+          <span class="Start-pathLink">Browse all resources →</span>
+        </a>
+      </div>
+    </div>
+    <div class="Start-stepFooter">
+      <button class="Start-prevBtn js-startPrevBtn" data-prev="3">← Back</button>
+      <button class="Start-nextBtn js-startNextBtn" data-next="5">Continue to What to Build →</button>
+    </div>
+  </section>
+
+  <!-- ── Step 5: What to build next ────────────────────────────── -->
+  <section class="Start-step js-startStep" data-step="5" id="step-5">
+    <div class="Start-stepInner Start-stepInner--wide">
+      <div class="Start-stepBadge">Step 5 of 5</div>
+      <h2>What will you build?</h2>
+      <p>Go shines in three areas. Pick the one that matches your project idea.</p>
+      <div class="Start-buildGrid">
+        <div class="Start-buildCard">
+          <div class="Start-buildIcon">🌐</div>
+          <h3>Web service / REST API</h3>
+          <p>Go's standard library includes a production-grade HTTP server. No framework required to get started.</p>
+          <div class="Start-stepPlayground">
+            <div class="Start-playgroundHeader">
+              <span class="Start-playgroundLabel">Web server starter</span>
+            </div>
+            <textarea class="Start-playgroundCode js-startPlaygroundCode" spellcheck="false" aria-label="Go code editor" rows="14">package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Hello from Go!",
+		"path":    r.URL.Path,
+	})
+}
+
+func main() {
+	http.HandleFunc("/", handler)
+	fmt.Println("Server running on :8080")
+	// http.ListenAndServe(":8080", nil)
+	fmt.Println("(ListenAndServe commented out for playground)")
+}</textarea>
+            <div class="Start-playgroundControls">
+              <button class="Start-playgroundRun js-startPlaygroundRun">▶ Run</button>
+            </div>
+            <pre class="Start-playgroundOutput js-startPlaygroundOutput" hidden></pre>
+          </div>
+          <a class="Start-buildLink" href="/doc/tutorial/web-service-gin">Full tutorial: REST API with Gin →</a>
+        </div>
+
+        <div class="Start-buildCard">
+          <div class="Start-buildIcon">⚙️</div>
+          <h3>CLI tool</h3>
+          <p>Go produces a single, fast binary. Perfect for developer tools, scripts, and automation.</p>
+          <div class="Start-stepPlayground">
+            <div class="Start-playgroundHeader">
+              <span class="Start-playgroundLabel">CLI tool starter</span>
+            </div>
+            <textarea class="Start-playgroundCode js-startPlaygroundCode" spellcheck="false" aria-label="Go code editor" rows="14">package main
+
+import (
+	"flag"
+	"fmt"
+	"os"
+	"strings"
+)
+
+func main() {
+	upper := flag.Bool("upper", false, "convert to uppercase")
+	flag.Parse()
+
+	args := flag.Args()
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stderr, "usage: greet [--upper] <name>")
+		os.Exit(1)
+	}
+	name := strings.Join(args, " ")
+	if *upper {
+		name = strings.ToUpper(name)
+	}
+	fmt.Printf("Hello, %s!\n", name)
+}</textarea>
+            <div class="Start-playgroundControls">
+              <button class="Start-playgroundRun js-startPlaygroundRun">▶ Run</button>
+            </div>
+            <pre class="Start-playgroundOutput js-startPlaygroundOutput" hidden></pre>
+          </div>
+          <a class="Start-buildLink" href="/doc/tutorial/getting-started">Full tutorial: Getting started →</a>
+        </div>
+
+        <div class="Start-buildCard">
+          <div class="Start-buildIcon">🔄</div>
+          <h3>Concurrent worker</h3>
+          <p>Goroutines and channels are Go's built-in concurrency primitives — lightweight and easy to reason about.</p>
+          <div class="Start-stepPlayground">
+            <div class="Start-playgroundHeader">
+              <span class="Start-playgroundLabel">Concurrency starter</span>
+            </div>
+            <textarea class="Start-playgroundCode js-startPlaygroundCode" spellcheck="false" aria-label="Go code editor" rows="16">package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func worker(id int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	fmt.Printf("Worker %d starting\n", id)
+	// Simulate work
+	sum := 0
+	for i := 0; i < 1_000_000; i++ {
+		sum += i
+	}
+	fmt.Printf("Worker %d done (sum=%d)\n", id, sum)
+}
+
+func main() {
+	var wg sync.WaitGroup
+	for i := 1; i <= 3; i++ {
+		wg.Add(1)
+		go worker(i, &wg)
+	}
+	wg.Wait()
+	fmt.Println("All workers done.")
+}</textarea>
+            <div class="Start-playgroundControls">
+              <button class="Start-playgroundRun js-startPlaygroundRun">▶ Run</button>
+            </div>
+            <pre class="Start-playgroundOutput js-startPlaygroundOutput" hidden></pre>
+          </div>
+          <a class="Start-buildLink" href="/tour/concurrency/1">Full tutorial: Concurrency in the Tour →</a>
+        </div>
+      </div>
+
+      <div class="Start-complete">
+        <div class="Start-completeIcon">🎉</div>
+        <h3>You're ready to build with Go!</h3>
+        <p>Bookmark these resources for your journey:</p>
+        <ul class="Start-completeLinks">
+          <li><a href="/doc/effective_go">Effective Go</a> — the canonical guide to idiomatic Go</li>
+          <li><a href="https://pkg.go.dev/std">Standard library</a> — batteries included</li>
+          <li><a href="/blog/">Go Blog</a> — deep dives from the Go team</li>
+          <li><a href="/wiki/IDEsAndTextEditorPlugins">Editor setup</a> — VS Code, GoLand, Vim, and more</li>
+        </ul>
+        <div class="Start-newsletter">
+          <h4>Stay up to date</h4>
+          <p>Subscribe to the Go announcement list for release notes and security advisories:</p>
+          <a class="Start-newsletterLink" href="https://groups.google.com/g/golang-announce">golang-announce mailing list →</a>
+        </div>
+      </div>
+    </div>
+    <div class="Start-stepFooter">
+      <button class="Start-prevBtn js-startPrevBtn" data-prev="4">← Back</button>
+      <a class="Start-nextBtn" href="/learn/">Explore the full learning catalog →</a>
+    </div>
+  </section>
+
+</div>
+<script src="/js/start.js"></script>

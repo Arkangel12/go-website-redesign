@@ -1,15 +1,23 @@
   - title: Web Dev
-    content: Go Web Examples provides easy to understand code snippets on
-      how to use Go for web development.
+    content: Go Web Examples provides easy to understand code snippets on how to use Go for web development.
     url: https://gowebexamples.com
     cta: Learn more
+    level: intermediate
+    duration_minutes: 60
+    tags: [web, http]
+
   - title: CLIs
-    content: This workshop will walk you through building a CLI app with Go,
-      introducing you to basic Go principles and CLI frameworks along the way.
+    content: Build a CLI app with Go, learning basic Go principles and CLI frameworks along the way.
     url: https://spf13.com/presentation/building-an-awesome-cli-app-in-go-oscon/
     cta: Learn more
+    level: intermediate
+    duration_minutes: 45
+    tags: [cli, tooling]
+
   - title: New to coding?
-    content: Get started with this introductory course covering basic
-      programming principles and Go fundamentals.
+    content: Get started with this introductory course covering basic programming principles and Go fundamentals.
     url: https://www.youtube.com/watch?v=Q0sKAMal4WQ
     cta: Learn more
+    level: beginner
+    duration_minutes: 120
+    tags: [basics, video]

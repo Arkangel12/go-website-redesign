@@ -1,0 +1,146 @@
+<!--{
+  "Title": "CLI Tool — Go in Practice"
+}-->
+
+<div class="Practice-example">
+
+<div class="Practice-exampleNav">
+  <a href="/practice/">← Go in Practice</a>
+</div>
+
+<div class="Practice-exampleHeader">
+  <span class="Practice-cardLevel Practice-cardLevel--beginner">Beginner</span>
+  <h1>CLI Tool</h1>
+  <p class="Practice-exampleSubtitle">A command-line utility with subcommands, flags, and formatted output — using only the standard library.</p>
+</div>
+
+<h2>What you'll build</h2>
+<p>A <code>note</code> command with three subcommands:</p>
+<ul>
+  <li><code>note add &lt;text&gt;</code> — append a note to a file</li>
+  <li><code>note list</code> — print all notes numbered</li>
+  <li><code>note clear</code> — wipe all notes (with a confirmation prompt)</li>
+</ul>
+
+<h2>main.go</h2>
+<pre><code>package main
+
+import (
+	"bufio"
+	"flag"
+	"fmt"
+	"os"
+	"strings"
+	"time"
+)
+
+const dataFile = "notes.txt"
+
+func main() {
+	if len(os.Args) &lt; 2 {
+		usage()
+		os.Exit(1)
+	}
+
+	switch os.Args[1] {
+	case "add":
+		cmdAdd(os.Args[2:])
+	case "list":
+		cmdList()
+	case "clear":
+		cmdClear()
+	default:
+		fmt.Fprintf(os.Stderr, "unknown command: %s\n", os.Args[1])
+		usage()
+		os.Exit(1)
+	}
+}
+
+func usage() {
+	fmt.Fprintln(os.Stderr, "usage: note &lt;command&gt; [args]")
+	fmt.Fprintln(os.Stderr, "commands: add, list, clear")
+}
+
+func cmdAdd(args []string) {
+	fs := flag.NewFlagSet("add", flag.ExitOnError)
+	fs.Parse(args)
+
+	text := strings.Join(fs.Args(), " ")
+	if text == "" {
+		fmt.Fprintln(os.Stderr, "add: provide note text")
+		os.Exit(1)
+	}
+
+	f, err := os.OpenFile(dataFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	defer f.Close()
+
+	line := fmt.Sprintf("[%s] %s\n", time.Now().Format("2006-01-02 15:04"), text)
+	f.WriteString(line)
+	fmt.Print("saved: ", line)
+}
+
+func cmdList() {
+	f, err := os.Open(dataFile)
+	if os.IsNotExist(err) {
+		fmt.Println("no notes yet — try: note add &lt;text&gt;")
+		return
+	}
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	n := 0
+	for scanner.Scan() {
+		n++
+		fmt.Printf("%3d  %s\n", n, scanner.Text())
+	}
+	if n == 0 {
+		fmt.Println("no notes")
+	}
+}
+
+func cmdClear() {
+	fmt.Print("delete all notes? [y/N] ")
+	var answer string
+	fmt.Scanln(&amp;answer)
+	if strings.ToLower(answer) != "y" {
+		fmt.Println("cancelled")
+		return
+	}
+	if err := os.Remove(dataFile); err != nil &amp;&amp; !os.IsNotExist(err) {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	fmt.Println("cleared")
+}
+</code></pre>
+
+<h2>Try it</h2>
+<pre><code>go run main.go add Buy groceries
+go run main.go add "Read Effective Go"
+go run main.go list
+go run main.go clear
+</code></pre>
+
+<h2>Key concepts</h2>
+<dl>
+  <dt>Subcommand dispatch</dt>
+  <dd>A <code>switch</code> on <code>os.Args[1]</code> is the simplest way to route subcommands. Each handler gets its own <code>flag.FlagSet</code> so flags don't collide.</dd>
+  <dt><code>os.OpenFile</code> flags</dt>
+  <dd><code>O_APPEND|O_CREATE|O_WRONLY</code> opens the file for appending, creating it if absent. No need to read the whole file into memory.</dd>
+  <dt><code>bufio.Scanner</code></dt>
+  <dd>Reads a file line-by-line without loading it all at once — the right default for text files of unknown size.</dd>
+</dl>
+
+<div class="Practice-next">
+  <a href="/practice/concurrent-worker">Next: Concurrent Worker Pool →</a>
+</div>
+
+</div>
